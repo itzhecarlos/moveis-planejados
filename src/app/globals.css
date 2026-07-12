@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ivory text-graphite antialiased;
+}
+
+* {
+  @apply border-stone-200;
+}
+
+a,
+button {
+  @apply transition duration-300;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  @apply outline-none ring-2 ring-graphite ring-offset-2 ring-offset-ivory;
+}
+
+.container-shell {
+  @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+}
+
+.editorial-grid {
+  @apply grid gap-10 lg:grid-cols-[0.95fr_1.25fr];
+}
+
+.section-space {
+  @apply py-16 sm:py-20 lg:py-24;
+}
+
+.card-hover {
+  @apply transition duration-500 hover:-translate-y-1 hover:shadow-soft;
+}
+
+.divider-line {
+  @apply mb-6 block h-px w-12 bg-taupe/60;
+}
