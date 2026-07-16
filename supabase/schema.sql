@@ -207,3 +207,29 @@ create trigger set_categories_updated_at before update on public.categories for 
 create trigger set_products_updated_at before update on public.products for each row execute function public.set_updated_at();
 create trigger set_product_variants_updated_at before update on public.product_variants for each row execute function public.set_updated_at();
 create trigger set_orders_updated_at before update on public.orders for each row execute function public.set_updated_at();
+
+alter table public.orders add column if not exists pix_discount numeric(12,2) not null default 0 check (pix_discount >= 0);
+alter table public.orders add column if not exists currency_code text not null default 'BRL';
+alter table public.orders add column if not exists pricing_source text not null default 'supabase';
+alter table public.orders add column if not exists pricing_snapshot jsonb;
+alter table public.orders add column if not exists customer_ip text;
+alter table public.orders add column if not exists customer_user_agent text;
+
+create or replace function public.normalize_br_state(value text)
+returns text
+language sql
+immutable
+as $$
+  select upper(left(trim(coalesce(value, '')), 2));
+$$;
+
+create or replace function public.calculate_shipping_amount(state_code text)
+returns numeric
+language sql
+immutable
+as $$
+  select case
+    when public.normalize_br_state(state_code) in ('PR', 'SC', 'RS') then 0::numeric
+    else 149::numeric
+  end;
+$$;

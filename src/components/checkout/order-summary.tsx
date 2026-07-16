@@ -1,8 +1,17 @@
+import { PIX_DISCOUNT_RATE, calculateShippingAmount, normalizeBrazilState } from "@/lib/checkout/pricing";
 import { getProducts } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/utils";
 import type { CartItem, PaymentMethod } from "@/types";
 
-export function OrderSummary({ items, paymentMethod }: { items: CartItem[]; paymentMethod: PaymentMethod }) {
+export function OrderSummary({
+  items,
+  paymentMethod,
+  shippingState
+}: {
+  items: CartItem[];
+  paymentMethod: PaymentMethod;
+  shippingState: string;
+}) {
   const products = getProducts();
   const enriched = items.map((item) => {
     const product = products.find((entry) => entry.id === item.productId);
@@ -18,9 +27,10 @@ export function OrderSummary({ items, paymentMethod }: { items: CartItem[]; paym
   });
 
   const subtotal = enriched.reduce((acc, entry) => acc + entry.total, 0);
-  const pixDiscount = paymentMethod === "pix" ? subtotal * 0.05 : 0;
-  const shipping = subtotal - pixDiscount > 2500 ? 0 : 149;
+  const pixDiscount = paymentMethod === "pix" ? subtotal * PIX_DISCOUNT_RATE : 0;
+  const shipping = shippingState ? calculateShippingAmount(shippingState) : 149;
   const total = subtotal - pixDiscount + shipping;
+  const qualifiesForRegionalFreeShipping = ["PR", "SC", "RS"].includes(normalizeBrazilState(shippingState));
 
   return (
     <aside className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
@@ -51,6 +61,8 @@ export function OrderSummary({ items, paymentMethod }: { items: CartItem[]; paym
           <dt className="text-stone-500">Frete estimado</dt>
           <dd>{shipping === 0 ? "Grátis" : formatCurrency(shipping)}</dd>
         </div>
+        {!shippingState ? <p className="text-xs text-stone-500">Informe a UF para calcular o frete corretamente. PR, SC e RS têm frete grátis.</p> : null}
+        {qualifiesForRegionalFreeShipping ? <p className="text-xs font-semibold text-emerald-700">Frete grátis aplicado para a Região Sul.</p> : null}
         <div className="flex justify-between border-t border-stone-200 pt-3 text-base font-medium">
           <dt>Total</dt>
           <dd>{formatCurrency(total)}</dd>

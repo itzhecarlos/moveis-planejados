@@ -39,6 +39,13 @@ alter table public.inventory_movements enable row level security;
 alter table public.order_status_history enable row level security;
 alter table public.admin_audit_logs enable row level security;
 
+alter table public.orders force row level security;
+alter table public.order_items force row level security;
+alter table public.payment_events force row level security;
+alter table public.inventory_movements force row level security;
+alter table public.order_status_history force row level security;
+alter table public.admin_audit_logs force row level security;
+
 create policy "public categories read active"
 on public.categories for select
 using (active = true);
@@ -150,3 +157,16 @@ using (public.is_admin());
 create policy "admin manages audit"
 on public.admin_audit_logs for select
 using (public.is_admin());
+
+revoke all on public.orders from anon, authenticated;
+revoke all on public.order_items from anon, authenticated;
+revoke all on public.payment_events from anon, authenticated;
+revoke all on public.inventory_movements from anon, authenticated;
+revoke all on public.order_status_history from anon, authenticated;
+revoke all on public.admin_audit_logs from anon, authenticated;
+
+grant select on public.categories to anon, authenticated;
+grant select on public.products to anon, authenticated;
+grant select on public.product_colors to anon, authenticated;
+grant select on public.product_variants to anon, authenticated;
+grant select on public.product_images to anon, authenticated;

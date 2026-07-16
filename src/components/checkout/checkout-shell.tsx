@@ -10,11 +10,17 @@ import type { PaymentMethod } from "@/types";
 export function CheckoutShell() {
   const items = useCartStore((state) => state.items);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
+  const [shippingState, setShippingState] = useState("");
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-      <CheckoutForm paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} />
-      <OrderSummary items={items} paymentMethod={paymentMethod} />
+      <CheckoutForm
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        setShippingState={setShippingState}
+        shippingState={shippingState}
+      />
+      <OrderSummary items={items} paymentMethod={paymentMethod} shippingState={shippingState} />
     </div>
   );
 }

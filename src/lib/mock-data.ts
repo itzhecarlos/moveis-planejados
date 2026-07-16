@@ -2,7 +2,7 @@ import type { Category, Product } from "@/types";
 
 export const categories: Category[] = [
   {
-    id: "cat-nightstands",
+    id: "7b53bb5d-e3ca-4f02-bf46-3ec9f67f7ca1",
     name: "Criados-mudos",
     slug: "criados-mudos",
     description:
@@ -13,11 +13,11 @@ export const categories: Category[] = [
 ];
 
 const colors = [
-  { id: "c-off-white", name: "Off White", slug: "off-white", hexColor: "#EAE0D6", active: true },
-  { id: "c-freijo", name: "Freijó", slug: "freijo", hexColor: "#8C6646", active: true },
-  { id: "c-preto", name: "Preto", slug: "preto", hexColor: "#1E1C1A", active: true },
-  { id: "c-areia", name: "Areia", slug: "areia", hexColor: "#D9CCBE", active: true },
-  { id: "c-fendi", name: "Fendi", slug: "fendi", hexColor: "#C7B2A0", active: true }
+  { id: "de080e29-c1fd-4cf1-a70d-bb08c57d136a", name: "Off White", slug: "off-white", hexColor: "#EAE0D6", active: true },
+  { id: "d51ca135-fc22-4cd7-b5ff-7b59c3905390", name: "Freijó", slug: "freijo", hexColor: "#8C6646", active: true },
+  { id: "08f98535-bb08-4c09-9bf8-c48ce51f2078", name: "Preto", slug: "preto", hexColor: "#1E1C1A", active: true },
+  { id: "84f042b0-7bf1-49ae-bfba-6502c03ea466", name: "Areia", slug: "areia", hexColor: "#D9CCBE", active: true },
+  { id: "aab99dcf-8db8-407d-9aa8-b57740edf7fa", name: "Fendi", slug: "fendi", hexColor: "#C7B2A0", active: true }
 ];
 
 function buildImages(slug: string, files: Array<{ file: string; width: number; height: number }>): Product["images"] {
@@ -34,7 +34,7 @@ function buildImages(slug: string, files: Array<{ file: string; width: number; h
 function buildVariants(slug: string, colorId: string, sku: string) {
   return [
     {
-      id: `${slug}-variant-1`,
+      id: sku,
       name: "Padrão",
       sku,
       priceAdjustment: 0,
@@ -47,7 +47,7 @@ function buildVariants(slug: string, colorId: string, sku: string) {
 
 export const products: Product[] = [
   {
-    id: "prod-firenze-preto",
+    id: "1bf09210-1fb5-41db-a9e6-b98511597690",
     slug: "firenze-preto",
     name: "Firenze - Preto",
     sku: "ATM-FIR-PTO",
@@ -69,8 +69,8 @@ export const products: Product[] = [
     displayOrder: 1,
     metaTitle: "Firenze - Preto | Atlas Móveis",
     metaDescription: "Criado-mudo em MDF com acabamento preto e visual sofisticado.",
-    colors: colors.filter((color) => color.id === "c-preto"),
-    variants: buildVariants("firenze-preto", "c-preto", "ATM-FIR-PTO-01"),
+    colors: colors.filter((color) => color.id === "08f98535-bb08-4c09-9bf8-c48ce51f2078"),
+    variants: buildVariants("firenze-preto", "08f98535-bb08-4c09-9bf8-c48ce51f2078", "640fa8ca-8ce9-44e3-b763-282e0de49781"),
     images: buildImages("firenze-preto", [
       { file: "cover.png", width: 1254, height: 1254 },
       { file: "01.png", width: 1536, height: 1024 },
@@ -79,7 +79,7 @@ export const products: Product[] = [
     ])
   },
   {
-    id: "prod-siena-freijo",
+    id: "1f38e9b9-7af5-45d6-a4cb-d8d0dcb0dfe8",
     slug: "siena-freijo",
     name: "Siena - Freijó",
     sku: "ATM-SIE-FRE",
@@ -101,8 +101,8 @@ export const products: Product[] = [
     displayOrder: 2,
     metaTitle: "Siena - Freijó | Atlas Móveis",
     metaDescription: "Criado-mudo amadeirado em MDF com visual elegante e acolhedor.",
-    colors: colors.filter((color) => color.id === "c-freijo"),
-    variants: buildVariants("siena-freijo", "c-freijo", "ATM-SIE-FRE-01"),
+    colors: colors.filter((color) => color.id === "d51ca135-fc22-4cd7-b5ff-7b59c3905390"),
+    variants: buildVariants("siena-freijo", "d51ca135-fc22-4cd7-b5ff-7b59c3905390", "9b7af249-35f7-4f48-9d96-033bc0796ab4"),
     images: buildImages("siena-freijo", [
       { file: "cover.png", width: 1254, height: 1254 },
       { file: "01.png", width: 1536, height: 1024 },
@@ -111,7 +111,7 @@ export const products: Product[] = [
     ])
   },
   {
-    id: "prod-oslo-off-white",
+    id: "fd8143fb-398e-4fc3-b55a-7b4b71505312",
     slug: "oslo-off-white",
     name: "Oslo - Off White",
     sku: "ATM-OSL-OWH",
@@ -133,8 +133,8 @@ export const products: Product[] = [
     displayOrder: 3,
     metaTitle: "Oslo - Off White | Atlas Móveis",
     metaDescription: "Criado-mudo em MDF com acabamento off white e linhas limpas.",
-    colors: colors.filter((color) => color.id === "c-off-white"),
-    variants: buildVariants("oslo-off-white", "c-off-white", "ATM-OSL-OWH-01"),
+    colors: colors.filter((color) => color.id === "de080e29-c1fd-4cf1-a70d-bb08c57d136a"),
+    variants: buildVariants("oslo-off-white", "de080e29-c1fd-4cf1-a70d-bb08c57d136a", "d17e8f17-fd75-412a-9a3a-9a8be8e20572"),
     images: buildImages("oslo-off-white", [
       { file: "cover.png", width: 1536, height: 1024 },
       { file: "01.png", width: 1536, height: 1024 },
@@ -143,7 +143,7 @@ export const products: Product[] = [
     ])
   },
   {
-    id: "prod-aurora-02",
+    id: "2a319092-d3a4-4b4e-bf74-b48badfffd6c",
     slug: "aurora-02",
     name: "Aurora 02",
     sku: "ATM-AUR-02",
@@ -165,8 +165,8 @@ export const products: Product[] = [
     displayOrder: 4,
     metaTitle: "Aurora 02 | Atlas Móveis",
     metaDescription: "Criado-mudo em MDF com proporção ampliada e visual refinado.",
-    colors: colors.filter((color) => ["c-areia", "c-fendi"].includes(color.id)),
-    variants: buildVariants("aurora-02", "c-areia", "ATM-AUR-02-01"),
+    colors: colors.filter((color) => ["84f042b0-7bf1-49ae-bfba-6502c03ea466", "aab99dcf-8db8-407d-9aa8-b57740edf7fa"].includes(color.id)),
+    variants: buildVariants("aurora-02", "84f042b0-7bf1-49ae-bfba-6502c03ea466", "acfe6cdf-271a-48b1-bbb5-72414b46eb78"),
     images: buildImages("aurora-02", [
       { file: "cover.png", width: 1254, height: 1254 },
       { file: "01.png", width: 1536, height: 1024 },
@@ -175,7 +175,7 @@ export const products: Product[] = [
     ])
   },
   {
-    id: "prod-aurora-01",
+    id: "8eaf3037-8f78-4e33-845d-4cba8ffed8f0",
     slug: "aurora-01",
     name: "Aurora 01",
     sku: "ATM-AUR-01",
@@ -197,8 +197,8 @@ export const products: Product[] = [
     displayOrder: 5,
     metaTitle: "Aurora 01 | Atlas Móveis",
     metaDescription: "Criado-mudo premium em MDF com acabamento claro e desenho minimalista.",
-    colors: colors.filter((color) => ["c-areia", "c-fendi"].includes(color.id)),
-    variants: buildVariants("aurora-01", "c-fendi", "ATM-AUR-01-01"),
+    colors: colors.filter((color) => ["84f042b0-7bf1-49ae-bfba-6502c03ea466", "aab99dcf-8db8-407d-9aa8-b57740edf7fa"].includes(color.id)),
+    variants: buildVariants("aurora-01", "aab99dcf-8db8-407d-9aa8-b57740edf7fa", "c4d31bb3-65aa-4c6a-a7c7-d00a80977c89"),
     images: buildImages("aurora-01", [
       { file: "cover.png", width: 1254, height: 1254 },
       { file: "01.png", width: 1536, height: 1024 },

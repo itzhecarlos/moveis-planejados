@@ -43,30 +43,32 @@ export function Hero({ products }: HeroProps) {
     <section className="border-b border-stone-200 bg-hero-glow">
       <div className="container-shell py-10 sm:py-14 lg:py-16">
         <div className="editorial-grid items-stretch lg:h-[760px]">
-          <div className="order-2 flex h-full flex-col justify-center bg-white px-6 py-8 sm:px-10 lg:order-1 lg:px-12">
+          <div className="order-2 flex h-full flex-col justify-start bg-white px-6 py-10 sm:px-10 lg:order-1 lg:h-[760px] lg:min-h-[760px] lg:max-h-[760px] lg:justify-center lg:px-12">
             <span className="divider-line" />
-            <h1 className="max-w-[10ch] font-serif text-[2.3rem] leading-[0.96] tracking-[-0.03em] sm:text-[4.4rem]">
+            <h1 className="max-w-[9ch] font-serif text-[1.95rem] leading-[0.94] tracking-[-0.03em] sm:text-[4.4rem]">
               Design que organiza. Qualidade que permanece.
             </h1>
             <p className="mt-6 max-w-md text-[15px] leading-7 text-stone-700 sm:mt-8 sm:text-base sm:leading-8">
               Criados-mudos em MDF de alta qualidade, com acabamentos impecáveis, desenhados para transformar o
               quarto com calma, organização e elegância.
             </p>
-            <div className="mt-8 flex min-h-[72px] flex-wrap items-center gap-3 sm:mt-10 sm:gap-4">
-              <Button href="/categoria/criados-mudos" size="lg">
+            <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10 sm:min-h-[72px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              <Button className="w-full sm:w-auto" href="/categoria/criados-mudos" size="lg">
                 Conheça a coleção
               </Button>
               {activeProduct ? (
-                <div className="max-w-full truncate rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-xs text-stone-700 sm:max-w-[270px] sm:text-sm">
+                <div className="w-full max-w-full truncate rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-xs text-stone-700 sm:max-w-[270px] sm:text-sm">
                   Em destaque: {activeProduct.name}
                 </div>
               ) : null}
             </div>
-            <div className="mt-8 grid grid-cols-2 gap-4 border-t border-stone-200 pt-6 sm:mt-10 sm:grid-cols-4 sm:gap-5 sm:pt-8">
+            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-5 border-t border-stone-200 pt-6 sm:mt-10 sm:grid-cols-4 sm:gap-5 sm:pt-8">
               {benefits.map(({ icon: Icon, label }) => (
                 <div className="space-y-3" key={label}>
                   <Icon className="size-6 text-stone-500" />
-                  <p className="text-[13px] leading-5 text-stone-700 sm:text-sm sm:leading-6">{label}</p>
+                  <p className="max-w-[12ch] text-[13px] leading-5 text-stone-700 sm:max-w-none sm:text-sm sm:leading-6">
+                    {label}
+                  </p>
                 </div>
               ))}
             </div>

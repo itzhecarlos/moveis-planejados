@@ -3,6 +3,13 @@ type MercadoPagoPreference = {
   init_point: string;
 };
 
+type MercadoPagoPayment = {
+  id: number | string;
+  status?: string;
+  external_reference?: string;
+  preference_id?: string;
+};
+
 export async function createPreference(orderNumber: string, total: number): Promise<MercadoPagoPreference> {
   if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
     return {
@@ -41,4 +48,23 @@ export async function createPreference(orderNumber: string, total: number): Prom
   }
 
   return (await response.json()) as MercadoPagoPreference;
+}
+
+export async function fetchMercadoPagoPayment(paymentId: string): Promise<MercadoPagoPayment> {
+  if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+    throw new Error("Mercado Pago não configurado.");
+  }
+
+  const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+    headers: {
+      Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+    },
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("Falha ao consultar pagamento no Mercado Pago.");
+  }
+
+  return (await response.json()) as MercadoPagoPayment;
 }

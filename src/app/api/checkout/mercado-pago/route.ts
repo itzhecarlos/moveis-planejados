@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getProducts } from "@/lib/catalog";
 import { createPreference } from "@/lib/mercado-pago";
+import { createPendingOrderFromCheckout, attachPreferenceToOrder } from "@/lib/server/checkout";
 import { formatCurrency } from "@/lib/utils";
 import { checkoutSchema } from "@/validations/checkout";
 
@@ -10,48 +10,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const payload = checkoutSchema.parse(body);
 
-    const products = getProducts();
-    const items = payload.items.map((item) => {
-      const product = products.find((entry) => entry.id === item.productId);
-
-      if (!product) {
-        throw new Error("Produto inválido.");
-      }
-
-      const variant = product.variants.find((entry) => entry.id === item.variantId) || product.variants[0];
-      const unitPrice =
-        item.purchaseType === "pair" && product.pairPrice ? product.pairPrice : product.promotionalPrice || product.unitPrice;
-
-      if (product.trackStock && variant && variant.stockQuantity < item.quantity) {
-        throw new Error(`Estoque insuficiente para ${product.name}.`);
-      }
-
-      return {
-        product,
-        variant,
-        quantity: item.quantity,
-        unitPrice,
-        total: unitPrice * item.quantity
-      };
+    const order = await createPendingOrderFromCheckout(payload, {
+      ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip"),
+      userAgent: request.headers.get("user-agent")
     });
 
-    const subtotal = items.reduce((acc, item) => acc + item.total, 0);
-    const pixDiscount = payload.paymentMethod === "pix" ? subtotal * 0.05 : 0;
-    const discountedSubtotal = subtotal - pixDiscount;
-    const shipping = discountedSubtotal > 2500 ? 0 : 149;
-    const total = discountedSubtotal + shipping;
-    const orderNumber = `ATL-${Date.now()}`;
-
-    const preference = await createPreference(orderNumber, total);
+    const preference = await createPreference(order.orderNumber, order.total);
+    await attachPreferenceToOrder(order.id, preference.id);
 
     return NextResponse.json({
       init_point: preference.init_point,
-      order_number: orderNumber,
+      order_number: order.orderNumber,
       totals: {
-        subtotal: formatCurrency(subtotal),
-        pix_discount: formatCurrency(pixDiscount),
-        shipping: formatCurrency(shipping),
-        total: formatCurrency(total)
+        subtotal: formatCurrency(order.subtotal),
+        pix_discount: formatCurrency(order.pixDiscount),
+        shipping: formatCurrency(order.shipping),
+        total: formatCurrency(order.total)
       }
     });
   } catch (error) {

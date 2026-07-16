@@ -15,9 +15,11 @@ import { checkoutSchema, type CheckoutInput } from "@/validations/checkout";
 type CheckoutFormProps = {
   paymentMethod: PaymentMethod;
   setPaymentMethod: (value: PaymentMethod) => void;
+  shippingState: string;
+  setShippingState: (value: string) => void;
 };
 
-export function CheckoutForm({ paymentMethod, setPaymentMethod }: CheckoutFormProps) {
+export function CheckoutForm({ paymentMethod, setPaymentMethod, shippingState, setShippingState }: CheckoutFormProps) {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
@@ -39,7 +41,7 @@ export function CheckoutForm({ paymentMethod, setPaymentMethod }: CheckoutFormPr
         complement: "",
         neighborhood: "",
         city: "",
-        state: "",
+        state: shippingState,
         notes: "",
         acceptedTerms: true
       }
@@ -118,7 +120,17 @@ export function CheckoutForm({ paymentMethod, setPaymentMethod }: CheckoutFormPr
         <Input placeholder="Complemento" {...fields("customer.complement")} />
         <Input placeholder="Bairro" {...fields("customer.neighborhood")} />
         <Input placeholder="Cidade" {...fields("customer.city")} />
-        <Input placeholder="UF" maxLength={2} {...fields("customer.state")} />
+        <Input
+          placeholder="UF"
+          maxLength={2}
+          {...fields("customer.state", {
+            onChange: (event) => {
+              const value = String(event.target.value || "").toUpperCase().slice(0, 2);
+              form.setValue("customer.state", value, { shouldDirty: true, shouldValidate: true });
+              setShippingState(value);
+            }
+          })}
+        />
       </div>
 
       <Textarea placeholder="Observações do pedido" {...fields("customer.notes")} />
