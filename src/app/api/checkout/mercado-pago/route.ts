@@ -36,8 +36,10 @@ export async function POST(request: Request) {
     });
 
     const subtotal = items.reduce((acc, item) => acc + item.total, 0);
-    const shipping = subtotal > 2500 ? 0 : 149;
-    const total = subtotal + shipping;
+    const pixDiscount = payload.paymentMethod === "pix" ? subtotal * 0.05 : 0;
+    const discountedSubtotal = subtotal - pixDiscount;
+    const shipping = discountedSubtotal > 2500 ? 0 : 149;
+    const total = discountedSubtotal + shipping;
     const orderNumber = `ATL-${Date.now()}`;
 
     const preference = await createPreference(orderNumber, total);
@@ -47,6 +49,7 @@ export async function POST(request: Request) {
       order_number: orderNumber,
       totals: {
         subtotal: formatCurrency(subtotal),
+        pix_discount: formatCurrency(pixDiscount),
         shipping: formatCurrency(shipping),
         total: formatCurrency(total)
       }

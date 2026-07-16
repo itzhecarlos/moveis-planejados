@@ -1,8 +1,8 @@
 import { getProducts } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/utils";
-import type { CartItem } from "@/types";
+import type { CartItem, PaymentMethod } from "@/types";
 
-export function OrderSummary({ items }: { items: CartItem[] }) {
+export function OrderSummary({ items, paymentMethod }: { items: CartItem[]; paymentMethod: PaymentMethod }) {
   const products = getProducts();
   const enriched = items.map((item) => {
     const product = products.find((entry) => entry.id === item.productId);
@@ -18,8 +18,9 @@ export function OrderSummary({ items }: { items: CartItem[] }) {
   });
 
   const subtotal = enriched.reduce((acc, entry) => acc + entry.total, 0);
-  const shipping = subtotal > 2500 ? 0 : 149;
-  const total = subtotal + shipping;
+  const pixDiscount = paymentMethod === "pix" ? subtotal * 0.05 : 0;
+  const shipping = subtotal - pixDiscount > 2500 ? 0 : 149;
+  const total = subtotal - pixDiscount + shipping;
 
   return (
     <aside className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
@@ -29,9 +30,7 @@ export function OrderSummary({ items }: { items: CartItem[] }) {
           <div className="flex items-start justify-between gap-4 border-b border-stone-100 pb-4" key={`${item.productId}-${item.variantId}`}>
             <div>
               <p className="font-medium">{product?.name || "Produto"}</p>
-              <p className="text-sm text-stone-500">
-                {item.purchaseType === "pair" ? "Par" : "Unidade"} · Qtd. {item.quantity}
-              </p>
+              <p className="text-sm text-stone-500">{item.purchaseType === "pair" ? "Par" : "Unidade"} · Qtd. {item.quantity}</p>
             </div>
             <p className="text-sm font-medium">{formatCurrency(total)}</p>
           </div>
@@ -42,6 +41,12 @@ export function OrderSummary({ items }: { items: CartItem[] }) {
           <dt className="text-stone-500">Subtotal</dt>
           <dd>{formatCurrency(subtotal)}</dd>
         </div>
+        {paymentMethod === "pix" ? (
+          <div className="flex justify-between text-emerald-700">
+            <dt>Desconto Pix 5%</dt>
+            <dd>-{formatCurrency(pixDiscount)}</dd>
+          </div>
+        ) : null}
         <div className="flex justify-between">
           <dt className="text-stone-500">Frete estimado</dt>
           <dd>{shipping === 0 ? "Grátis" : formatCurrency(shipping)}</dd>

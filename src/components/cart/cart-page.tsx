@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,7 +16,7 @@ export function CartPage() {
   const products = getProducts();
 
   if (!items.length) {
-    return <EmptyState description="Adicione peças ao carrinho para iniciar sua seleção." title="Seu carrinho está vazio" />;
+    return <EmptyState description="Adicione produtos ao carrinho para iniciar sua seleção." title="Seu carrinho está vazio" />;
   }
 
   const enriched = items.map((item) => {
@@ -47,7 +47,9 @@ export function CartPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-medium">{product?.name}</h2>
-                    <p className="mt-1 text-sm text-stone-500">{item.purchaseType === "pair" ? "Compra em par" : "Compra unitária"}</p>
+                    <p className="mt-1 text-sm text-stone-500">
+                      {item.purchaseType === "pair" ? "Compra em par" : "Compra unitária"} · Qtd. {item.quantity}
+                    </p>
                   </div>
                   <button
                     className="text-sm text-stone-500 hover:text-graphite"
@@ -92,7 +94,9 @@ export function CartPage() {
                   </button>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-stone-500">{formatCurrency(price)} cada</p>
+                  <p className="text-sm text-stone-500">
+                    {formatCurrency(price)} por {item.purchaseType === "pair" ? "par" : "unidade"}
+                  </p>
                   <p className="text-lg font-medium">{formatCurrency(total)}</p>
                 </div>
               </div>
@@ -108,7 +112,7 @@ export function CartPage() {
           <strong>{formatCurrency(subtotal)}</strong>
         </div>
         <p className="mt-4 text-sm leading-7 text-stone-600">
-          O valor final e o estoque serão confirmados novamente no checkout para manter a segurança do pedido.
+          O valor final e o estoque serão confirmados novamente no checkout. Pagamentos via Pix recebem 5% de desconto.
         </p>
         <div className="mt-6 grid gap-3">
           <Button href="/checkout">Continuar para o checkout</Button>

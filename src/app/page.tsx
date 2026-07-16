@@ -5,13 +5,15 @@ import { Hero } from "@/components/home/hero";
 import { getProductsByCategory } from "@/lib/catalog";
 
 export default function HomePage() {
+  const products = getProductsByCategory("criados-mudos");
+
   return (
     <>
-      <Hero />
+      <Hero products={products} />
       <CategoryShowcase
         description="Uma coleção inicial com cinco modelos de criados-mudos, cada um com personalidade própria e acabamento pensado para quartos elegantes."
         href="/categoria/criados-mudos"
-        products={getProductsByCategory("criados-mudos")}
+        products={products}
         title="Criados-mudos"
       />
       <BenefitsGrid />

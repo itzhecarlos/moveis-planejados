@@ -8,9 +8,12 @@ import type { Product } from "@/types";
 export function ProductCard({ product }: { product: Product }) {
   const inStock = product.stockQuantity > 0;
   const unitPrice = product.promotionalPrice || product.unitPrice;
+  const pairPrice = product.pairPrice || product.promotionalPrice || product.unitPrice;
+  const unitPix = unitPrice * 0.95;
+  const pairPix = pairPrice * 0.95;
 
   return (
-    <Link className="group block rounded-[1.6rem] border border-stone-200 bg-white p-3 card-hover" href={`/produto/${product.slug}`}>
+    <Link className="group block h-full rounded-[1.6rem] border border-stone-200 bg-white p-3 card-hover" href={`/produto/${product.slug}`}>
       <div className="overflow-hidden rounded-[1.2rem] bg-ivory">
         <Image
           alt={product.images[0]?.alt || product.name}
@@ -20,34 +23,33 @@ export function ProductCard({ product }: { product: Product }) {
           width={900}
         />
       </div>
-      <div className="space-y-3 px-2 pb-2 pt-4">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="max-w-[10ch] text-[1.35rem] font-medium leading-[1.15] text-graphite">{product.name}</h3>
+
+      <div className="flex h-[calc(100%-theme(spacing.0))] flex-col space-y-3 px-2 pb-2 pt-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <h3 className="max-w-[12ch] text-[1.3rem] font-medium leading-[1.12] text-graphite sm:text-[1.4rem]">{product.name}</h3>
           <Badge tone={inStock ? "success" : "warning"}>{inStock ? "Em estoque" : "Sob encomenda"}</Badge>
         </div>
 
         <div className="rounded-[1.1rem] border border-stone-200 bg-gradient-to-br from-stone-50 to-white px-4 py-3">
-          <div className="flex items-end justify-between gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-500">Valor unitário</p>
-              <p className="mt-1 text-[1.55rem] font-semibold leading-none text-graphite">{formatCurrency(unitPrice)}</p>
+              <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-500">Unidade</p>
+              <p className="mt-1 text-[1.1rem] font-semibold leading-none text-graphite sm:text-[1.2rem]">{formatCurrency(unitPrice)}</p>
+              <p className="mt-2 text-xs text-emerald-700">Pix: {formatCurrency(unitPix)}</p>
             </div>
-            <span className="pb-1 text-[0.72rem] uppercase tracking-[0.24em] text-stone-500">unid.</span>
+            <div className="border-t border-stone-200 pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+              <p className="text-[0.68rem] uppercase tracking-[0.28em] text-stone-500">Par</p>
+              <p className="mt-1 text-[1.2rem] font-semibold leading-none text-graphite sm:text-[1.35rem]">{formatCurrency(pairPrice)}</p>
+              <p className="mt-2 text-xs text-emerald-700">Pix: {formatCurrency(pairPix)}</p>
+            </div>
           </div>
-
-          {product.pairPrice ? (
-            <div className="mt-3 flex items-center justify-between border-t border-stone-200 pt-3">
-              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Valor do par</p>
-              <p className="text-base font-medium text-stone-800">{formatCurrency(product.pairPrice)}</p>
-            </div>
-          ) : null}
         </div>
 
         <div className="space-y-1 text-sm text-stone-600">
           <p>{product.dimensions}</p>
         </div>
 
-        <div className="flex items-center gap-2 pt-1">
+        <div className="mt-auto flex items-center gap-2 pt-1">
           {product.colors.map((color) => (
             <span
               aria-label={color.name}

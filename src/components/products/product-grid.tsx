@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/products/product-card";
 
 export function ProductGrid({ products }: { products: Product[] }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

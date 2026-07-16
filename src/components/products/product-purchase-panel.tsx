@@ -19,12 +19,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const activeColor = product.colors.find((color) => color.id === activeVariant?.colorId) || product.colors[0];
 
   const basePrice = purchaseType === "pair" && product.pairPrice ? product.pairPrice : product.promotionalPrice || product.unitPrice;
+  const pixPrice = basePrice * 0.95;
   const total = useMemo(() => basePrice * quantity, [basePrice, quantity]);
+  const totalPix = useMemo(() => pixPrice * quantity, [pixPrice, quantity]);
 
   return (
     <div className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft sm:p-8">
       <div className="space-y-5">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Badge tone={product.stockQuantity > 0 ? "success" : "warning"}>
             {product.stockQuantity > 0 ? "Disponível" : "Sob encomenda"}
           </Badge>
@@ -36,7 +38,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
         <div className="space-y-2">
           <p className="text-3xl font-medium">{formatCurrency(basePrice)}</p>
-          {product.pairPrice ? <p className="text-sm text-stone-500">Par: {formatCurrency(product.pairPrice)}</p> : null}
+          <p className="text-sm text-emerald-700">Pix com 5% off: {formatCurrency(pixPrice)}</p>
           <p className="text-sm text-stone-500">{formatInstallment(basePrice)}</p>
         </div>
 
@@ -64,29 +66,29 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Tipo de compra</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Modalidade</p>
             <div className="flex gap-3">
               <button
                 className={`rounded-full border px-4 py-2 text-sm ${purchaseType === "unit" ? "border-graphite bg-stone-50" : "border-stone-200"}`}
                 onClick={() => setPurchaseType("unit")}
                 type="button"
               >
-                Unidade
+                Unitário
               </button>
-              {product.pairPrice ? (
-                <button
-                  className={`rounded-full border px-4 py-2 text-sm ${purchaseType === "pair" ? "border-graphite bg-stone-50" : "border-stone-200"}`}
-                  onClick={() => setPurchaseType("pair")}
-                  type="button"
-                >
-                  Par
-                </button>
-              ) : null}
+              <button
+                className={`rounded-full border px-4 py-2 text-sm ${purchaseType === "pair" ? "border-graphite bg-stone-50" : "border-stone-200"}`}
+                onClick={() => setPurchaseType("pair")}
+                type="button"
+              >
+                Par
+              </button>
             </div>
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Quantidade</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+              Quantidade de {purchaseType === "pair" ? "pares" : "unidades"}
+            </p>
             <div className="inline-flex items-center rounded-full border border-stone-200 bg-stone-50 p-1">
               <button className="rounded-full p-2 hover:bg-white" onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">
                 <Minus className="size-4" />
@@ -136,6 +138,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <div className="sm:col-span-2">
             <dt className="uppercase tracking-[0.22em] text-stone-500">Resumo do pedido</dt>
             <dd className="mt-2 text-lg font-medium text-graphite">{formatCurrency(total)}</dd>
+            <dd className="mt-1 text-sm text-emerald-700">No Pix: {formatCurrency(totalPix)}</dd>
           </div>
         </dl>
       </div>

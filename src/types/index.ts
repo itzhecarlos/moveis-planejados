@@ -64,6 +64,8 @@ export type Product = {
 
 export type PurchaseType = "unit" | "pair";
 
+export type PaymentMethod = "pix" | "card";
+
 export type CartItem = {
   productId: string;
   variantId?: string;

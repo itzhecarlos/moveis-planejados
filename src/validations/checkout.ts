@@ -9,6 +9,7 @@ export const checkoutItemSchema = z.object({
 
 export const checkoutSchema = z.object({
   items: z.array(checkoutItemSchema).min(1),
+  paymentMethod: z.enum(["pix", "card"]),
   customer: z.object({
     fullName: z.string().min(3),
     email: z.string().email(),

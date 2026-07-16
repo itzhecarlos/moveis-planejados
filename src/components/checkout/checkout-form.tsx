@@ -8,10 +8,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { checkoutSchema, type CheckoutInput } from "@/validations/checkout";
 import { useCartStore } from "@/stores/cart-store";
+import type { PaymentMethod } from "@/types";
+import { checkoutSchema, type CheckoutInput } from "@/validations/checkout";
 
-export function CheckoutForm() {
+type CheckoutFormProps = {
+  paymentMethod: PaymentMethod;
+  setPaymentMethod: (value: PaymentMethod) => void;
+};
+
+export function CheckoutForm({ paymentMethod, setPaymentMethod }: CheckoutFormProps) {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
@@ -21,6 +27,7 @@ export function CheckoutForm() {
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       items,
+      paymentMethod,
       customer: {
         fullName: "",
         email: "",
@@ -44,7 +51,7 @@ export function CheckoutForm() {
     const response = await fetch("/api/checkout/mercado-pago", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, items })
+      body: JSON.stringify({ ...values, items, paymentMethod })
     });
 
     setSubmitting(false);
@@ -68,8 +75,36 @@ export function CheckoutForm() {
       <div>
         <h2 className="font-serif text-3xl">Dados para entrega e pagamento</h2>
         <p className="mt-3 text-sm leading-7 text-stone-600">
-          O pedido é validado no servidor, com recálculo de preços, estoque e geração segura da preferência de pagamento.
+          O pedido é validado no servidor, com recálculo de preços, estoque e desconto automático de 5% para pagamentos via Pix.
         </p>
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Forma de pagamento</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            className={`rounded-[1.25rem] border px-4 py-4 text-left ${paymentMethod === "pix" ? "border-graphite bg-stone-50" : "border-stone-200 bg-white"}`}
+            onClick={() => {
+              setPaymentMethod("pix");
+              form.setValue("paymentMethod", "pix");
+            }}
+            type="button"
+          >
+            <p className="text-sm font-medium text-graphite">Pix</p>
+            <p className="mt-1 text-xs text-emerald-700">5% de desconto aplicado automaticamente</p>
+          </button>
+          <button
+            className={`rounded-[1.25rem] border px-4 py-4 text-left ${paymentMethod === "card" ? "border-graphite bg-stone-50" : "border-stone-200 bg-white"}`}
+            onClick={() => {
+              setPaymentMethod("card");
+              form.setValue("paymentMethod", "card");
+            }}
+            type="button"
+          >
+            <p className="text-sm font-medium text-graphite">Cartão</p>
+            <p className="mt-1 text-xs text-stone-500">Valor integral da modalidade escolhida</p>
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -93,9 +128,7 @@ export function CheckoutForm() {
         Li e aceito os termos de uso, política de entrega e política de trocas da Atlas Móveis.
       </label>
 
-      {form.formState.errors.root?.message ? (
-        <p className="text-sm text-red-600">{form.formState.errors.root.message}</p>
-      ) : null}
+      {form.formState.errors.root?.message ? <p className="text-sm text-red-600">{form.formState.errors.root.message}</p> : null}
 
       <Button className="w-full" disabled={submitting} type="submit">
         {submitting ? "Iniciando pagamento..." : "Ir para o pagamento"}
