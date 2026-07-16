@@ -9,16 +9,10 @@ export default function HomePage() {
     <>
       <Hero />
       <CategoryShowcase
-        description="Linhas exclusivas que combinam funcionalidade, beleza e acabamentos de alto padrão para o seu quarto."
-        href="/categoria/mesas-de-cabeceira"
-        products={getProductsByCategory("mesas-de-cabeceira")}
-        title="Mesas de cabeceira"
-      />
-      <CategoryShowcase
-        description="Peças versáteis que complementam diferentes ambientes com praticidade e sofisticação."
-        href="/categoria/mesas-laterais"
-        products={getProductsByCategory("mesas-laterais")}
-        title="Mesas laterais de apoio"
+        description="Uma coleção inicial com cinco modelos de criados-mudos, cada um com personalidade própria e acabamento pensado para quartos elegantes."
+        href="/categoria/criados-mudos"
+        products={getProductsByCategory("criados-mudos")}
+        title="Criados-mudos"
       />
       <BenefitsGrid />
       <AboutBrand />

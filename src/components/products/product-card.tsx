@@ -15,7 +15,7 @@ export function ProductCard({ product }: { product: Product }) {
           alt={product.images[0]?.alt || product.name}
           className="aspect-[4/5] w-full object-cover transition duration-700 group-hover:scale-[1.04]"
           height={1100}
-          src={product.images[0]?.src || "/images/products/bedside-1.svg"}
+          src={product.images[0]?.src || "/images/products/aurora-01/cover.png"}
           width={900}
         />
       </div>

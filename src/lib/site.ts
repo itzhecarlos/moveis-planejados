@@ -11,8 +11,7 @@ export const siteConfig = {
 
 export const navLinks = [
   { href: "/", label: "Início" },
-  { href: "/categoria/mesas-de-cabeceira", label: "Mesas de cabeceira" },
-  { href: "/categoria/mesas-laterais", label: "Mesas laterais" },
+  { href: "/categoria/criados-mudos", label: "Criados-mudos" },
   { href: "/produtos", label: "Todos os produtos" },
   { href: "/sobre", label: "Sobre nós" },
   { href: "/contato", label: "Contato" }

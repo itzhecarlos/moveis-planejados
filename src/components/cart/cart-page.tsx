@@ -38,7 +38,7 @@ export function CartPage() {
                 alt={product?.name || "Produto"}
                 className="aspect-[4/5] w-full object-cover"
                 height={500}
-                src={product?.images[0]?.src || "/images/products/bedside-1.svg"}
+                src={product?.images[0]?.src || "/images/products/aurora-01/cover.png"}
                 width={400}
               />
             </div>

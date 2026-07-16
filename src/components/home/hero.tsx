@@ -20,10 +20,10 @@ export function Hero() {
             Design que organiza. Qualidade que permanece.
           </h1>
           <p className="mt-8 max-w-md text-base leading-8 text-stone-700">
-            Móveis em MDF de alta qualidade, com acabamentos impecáveis, criados para transformar sua casa em um lugar único.
+            Criados-mudos em MDF de alta qualidade, com acabamentos impecáveis, desenhados para transformar o quarto com calma, organização e elegância.
           </p>
           <div className="mt-10">
-            <Button href="/produtos" size="lg">
+            <Button href="/categoria/criados-mudos" size="lg">
               Conheça a coleção
             </Button>
           </div>
@@ -38,11 +38,11 @@ export function Hero() {
         </div>
         <div className="order-1 overflow-hidden lg:order-2">
           <Image
-            alt="Ambiente sofisticado com mesa de cabeceira Atlas Móveis"
+            alt="Criado-mudo Atlas Móveis em composição minimalista"
             className="h-full min-h-[380px] w-full object-cover"
-            height={1200}
-            src="/images/hero/hero-bedroom.svg"
-            width={1400}
+            height={1254}
+            src="/images/products/aurora-01/cover.png"
+            width={1254}
           />
         </div>
       </div>
