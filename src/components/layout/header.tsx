@@ -3,23 +3,36 @@
 import Link from "next/link";
 import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { CartPreview } from "@/components/cart/cart-preview";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { navLinks, siteConfig } from "@/lib/site";
-import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
+import { navLinks, siteConfig } from "@/lib/site";
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-  const count = useCartStore((state) => state.count());
+  const pathname = usePathname();
 
   useEffect(() => {
-    setHydrated(true);
-  }, []);
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = previousOverflow;
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
@@ -49,36 +62,47 @@ export function Header() {
           <CartPreview />
         </div>
 
-        <button
-          aria-label={open ? "Fechar menu" : "Abrir menu"}
-          className="inline-flex rounded-full border border-stone-200 p-3 lg:hidden"
-          onClick={() => setOpen((value) => !value)}
-          type="button"
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <CartPreview mobile />
+          <button
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
+            className="inline-flex rounded-full border border-stone-200 bg-white p-3"
+            onClick={() => setOpen((value) => !value)}
+            type="button"
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </div>
 
-      <div className={cn("border-t border-stone-200 bg-white lg:hidden", open ? "block" : "hidden")}>
-        <div className="container-shell space-y-4 py-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
-            <Input className="pl-10" placeholder="Buscar móveis" />
-          </div>
-          <nav className="grid gap-2">
-            {navLinks.map((link) => (
-              <Link className="rounded-2xl px-3 py-3 text-sm hover:bg-stone-50" href={link.href} key={link.href}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button className="flex-1" href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank" variant="secondary">
-              WhatsApp
-            </Button>
-            <Button className="flex-1" href="/carrinho">
-              Carrinho ({hydrated ? count : 0})
-            </Button>
+      <div
+        className={cn(
+          "lg:hidden",
+          open ? "visible opacity-100" : "invisible opacity-0"
+        )}
+      >
+        <button aria-label="Fechar menu móvel" className="fixed inset-0 top-20 z-40 bg-black/25" onClick={() => setOpen(false)} type="button" />
+        <div className="absolute inset-x-0 top-full z-50 border-t border-stone-200 bg-white">
+          <div className="container-shell space-y-4 py-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
+              <Input className="pl-10" placeholder="Buscar móveis" />
+            </div>
+            <nav className="grid gap-2">
+              {navLinks.map((link) => (
+                <Link className="rounded-2xl px-3 py-3 text-sm hover:bg-stone-50" href={link.href} key={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="grid gap-3">
+              <Button className="w-full" href="/carrinho" variant="secondary">
+                Ver carrinho completo
+              </Button>
+              <Button className="w-full" href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank">
+                WhatsApp
+              </Button>
+            </div>
           </div>
         </div>
       </div>

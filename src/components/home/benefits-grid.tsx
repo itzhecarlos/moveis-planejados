@@ -13,8 +13,8 @@ const items = [
   },
   {
     icon: Truck,
-    title: "Entrega para todo o Brasil",
-    description: "Parcerias com transportadoras especializadas em móveis."
+    title: "Frete grátis no Sul",
+    description: "Entregamos em todo o PR, SC e RS com frete grátis na região."
   },
   {
     icon: Headphones,

@@ -26,18 +26,25 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     href?: string;
     target?: string;
     rel?: string;
+    onClick?: React.MouseEventHandler<HTMLElement>;
   };
 
-export function Button({ className, variant, size, asChild, href, ...props }: ButtonProps) {
+export function Button({ className, variant, size, asChild, href, target, rel, ...props }: ButtonProps) {
   if (href) {
     return (
-      <Link className={cn(buttonVariants({ variant, size }), className)} href={href}>
+      <Link
+        className={cn(buttonVariants({ variant, size }), className)}
+        href={href}
+        onClick={props.onClick}
+        rel={rel}
+        target={target}
+      >
         {props.children}
       </Link>
     );

@@ -42,7 +42,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Entrega</p>
-              <p className="mt-2">Atendimento consultivo e envio para todo o Brasil.</p>
+              <p className="mt-2">Atendimento consultivo para todo o Brasil, com frete grátis em toda a Região Sul: PR, SC e RS.</p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Garantia</p>
@@ -53,7 +53,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
         {related.length ? (
           <div className="space-y-8">
-            <SectionHeading description="Peças com a mesma linguagem estética para complementar o ambiente." eyebrow="Relacionados" title="Você também pode gostar" />
+            <SectionHeading
+              description="Peças com a mesma linguagem estética para complementar o ambiente."
+              eyebrow="Relacionados"
+              title="Você também pode gostar"
+            />
             <ProductGrid products={related} />
           </div>
         ) : null}
