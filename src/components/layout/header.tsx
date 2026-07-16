@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Search, ShoppingBag, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { CartPreview } from "@/components/cart/cart-preview";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,12 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const count = useCartStore((state) => state.count());
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
@@ -40,12 +46,7 @@ export function Header() {
           <Button href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank" variant="secondary">
             WhatsApp
           </Button>
-          <Link className="relative rounded-full border border-stone-200 p-3 hover:border-stone-300" href="/carrinho">
-            <ShoppingBag className="size-5" />
-            <span className="absolute -right-1 -top-1 inline-flex size-5 items-center justify-center rounded-full bg-graphite text-[10px] text-white">
-              {count}
-            </span>
-          </Link>
+          <CartPreview />
         </div>
 
         <button
@@ -76,7 +77,7 @@ export function Header() {
               WhatsApp
             </Button>
             <Button className="flex-1" href="/carrinho">
-              Carrinho ({count})
+              Carrinho ({hydrated ? count : 0})
             </Button>
           </div>
         </div>

@@ -38,7 +38,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
         <div className="space-y-2">
           <p className="text-3xl font-medium">{formatCurrency(basePrice)}</p>
-          <p className="text-sm text-emerald-700">Pix com 5% off: {formatCurrency(pixPrice)}</p>
+          <p className="text-sm font-bold text-emerald-700">5% OFF NO PIX: {formatCurrency(pixPrice)}</p>
           <p className="text-sm text-stone-500">{formatInstallment(basePrice)}</p>
         </div>
 
@@ -138,7 +138,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <div className="sm:col-span-2">
             <dt className="uppercase tracking-[0.22em] text-stone-500">Resumo do pedido</dt>
             <dd className="mt-2 text-lg font-medium text-graphite">{formatCurrency(total)}</dd>
-            <dd className="mt-1 text-sm text-emerald-700">No Pix: {formatCurrency(totalPix)}</dd>
+            <dd className="mt-1 text-sm font-semibold text-emerald-700">No Pix: {formatCurrency(totalPix)}</dd>
           </div>
         </dl>
       </div>

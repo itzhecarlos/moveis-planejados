@@ -91,7 +91,7 @@ export function CheckoutForm({ paymentMethod, setPaymentMethod }: CheckoutFormPr
             type="button"
           >
             <p className="text-sm font-medium text-graphite">Pix</p>
-            <p className="mt-1 text-xs text-emerald-700">5% de desconto aplicado automaticamente</p>
+            <p className="mt-1 text-xs font-semibold text-emerald-700">5% de desconto aplicado automaticamente</p>
           </button>
           <button
             className={`rounded-[1.25rem] border px-4 py-4 text-left ${paymentMethod === "card" ? "border-graphite bg-stone-50" : "border-stone-200 bg-white"}`}

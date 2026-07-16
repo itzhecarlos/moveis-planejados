@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -52,11 +53,12 @@ export function CartPage() {
                     </p>
                   </div>
                   <button
-                    className="text-sm text-stone-500 hover:text-graphite"
+                    aria-label={`Remover ${product?.name || "produto"} do carrinho`}
+                    className="inline-flex rounded-full border border-stone-200 p-2 text-stone-500 hover:border-stone-300 hover:text-graphite"
                     onClick={() => removeItem({ productId: item.productId, variantId: item.variantId, purchaseType: item.purchaseType })}
                     type="button"
                   >
-                    Remover
+                    <Trash2 className="size-4" />
                   </button>
                 </div>
                 <p className="mt-4 text-sm text-stone-600">{product?.dimensions}</p>

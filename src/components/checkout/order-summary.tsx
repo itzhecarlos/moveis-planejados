@@ -42,7 +42,7 @@ export function OrderSummary({ items, paymentMethod }: { items: CartItem[]; paym
           <dd>{formatCurrency(subtotal)}</dd>
         </div>
         {paymentMethod === "pix" ? (
-          <div className="flex justify-between text-emerald-700">
+          <div className="flex justify-between font-semibold text-emerald-700">
             <dt>Desconto Pix 5%</dt>
             <dd>-{formatCurrency(pixDiscount)}</dd>
           </div>
