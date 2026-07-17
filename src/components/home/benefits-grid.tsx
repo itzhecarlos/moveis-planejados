@@ -25,8 +25,8 @@ const items = [
 
 export function BenefitsGrid() {
   return (
-    <section className="border-y border-stone-200 bg-white">
-      <div className="container-shell grid gap-6 py-8 md:grid-cols-2 xl:grid-cols-4">
+    <section className="bg-transparent">
+      <div className="container-shell grid gap-6 rounded-[2rem] border border-stone-200 bg-white px-6 py-8 md:grid-cols-2 lg:px-8 xl:grid-cols-4">
         {items.map(({ icon: Icon, title, description }) => (
           <div className="flex gap-4 border-stone-200 xl:border-r xl:pr-6 last:border-r-0" key={title}>
             <Icon className="mt-1 size-6 shrink-0 text-stone-500" />

@@ -15,7 +15,7 @@ type CategoryShowcaseProps = {
 export function CategoryShowcase({ title, description, href, products }: CategoryShowcaseProps) {
   return (
     <section className="section-space">
-      <div className="container-shell grid gap-8 lg:gap-10 xl:grid-cols-[260px_1fr] xl:items-start">
+      <div className="container-shell grid gap-8 rounded-[2rem] bg-white px-6 py-8 lg:gap-10 lg:px-8 lg:py-10 xl:grid-cols-[260px_1fr] xl:items-start">
         <div className="space-y-5 sm:space-y-6 xl:sticky xl:top-28">
           <SectionHeading description={description} title={title} />
           <Button href={href} variant="secondary">

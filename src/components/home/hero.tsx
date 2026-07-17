@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Award, ChevronLeft, ChevronRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -12,7 +12,7 @@ import type { Product } from "@/types";
 const benefits = [
   { icon: ShieldCheck, label: "Materiais premium" },
   { icon: Sparkles, label: "Acabamentos impecáveis" },
-  { icon: Truck, label: "Frete grátis em PR, SC e RS" },
+  { icon: Truck, label: "Frete grátis no Sul" },
   { icon: Award, label: "1 ano de garantia" }
 ];
 
@@ -23,6 +23,7 @@ type HeroProps = {
 export function Hero({ products }: HeroProps) {
   const [index, setIndex] = useState(0);
   const activeProduct = products[index] || products[0];
+  const productTabsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (products.length <= 1) return;
@@ -34,6 +35,19 @@ export function Hero({ products }: HeroProps) {
     return () => window.clearInterval(interval);
   }, [products.length]);
 
+  useEffect(() => {
+    const container = productTabsRef.current;
+    const activeTab = container?.querySelector<HTMLButtonElement>(`[data-product-index="${index}"]`);
+
+    if (!container || !activeTab) return;
+
+    activeTab.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center"
+    });
+  }, [index]);
+
   function goToSlide(nextIndex: number) {
     const normalized = (nextIndex + products.length) % products.length;
     setIndex(normalized);
@@ -41,42 +55,43 @@ export function Hero({ products }: HeroProps) {
 
   return (
     <section className="border-b border-stone-200 bg-hero-glow">
-      <div className="container-shell py-10 sm:py-14 lg:py-16">
-        <div className="editorial-grid items-stretch lg:h-[760px]">
-          <div className="order-2 flex h-full flex-col justify-start bg-white px-6 py-10 sm:px-10 lg:order-1 lg:h-[760px] lg:min-h-[760px] lg:max-h-[760px] lg:justify-center lg:px-12">
+      <div className="container-shell py-8 sm:py-10 lg:py-16">
+        <div className="editorial-grid items-stretch overflow-hidden rounded-[2rem] bg-white lg:h-[760px]">
+          <div className="order-2 flex min-h-0 flex-col justify-start rounded-b-[2rem] bg-white px-7 py-10 sm:px-8 sm:py-11 lg:order-1 lg:h-[760px] lg:min-h-[760px] lg:max-h-[760px] lg:rounded-none lg:justify-center lg:px-12 lg:py-12 xl:px-14">
             <span className="divider-line" />
-            <h1 className="max-w-[9ch] font-serif text-[1.95rem] leading-[0.94] tracking-[-0.03em] sm:text-[4.4rem]">
+            <h1 className="max-w-[8.4ch] pt-3 font-serif text-[2.45rem] leading-[0.94] tracking-[-0.025em] sm:max-w-[8.1ch] sm:pt-2 sm:text-[3.35rem] sm:leading-[0.92] md:max-w-[7.8ch] md:text-[3.9rem] lg:max-w-[7.2ch] lg:pt-0 lg:text-[4.9rem] lg:leading-[0.9] xl:text-[5.3rem]">
               Design que organiza. Qualidade que permanece.
             </h1>
-            <p className="mt-6 max-w-md text-[15px] leading-7 text-stone-700 sm:mt-8 sm:text-base sm:leading-8">
+            <p className="mt-7 max-w-[32ch] text-[14px] leading-7 text-stone-700 sm:mt-7 sm:max-w-[36ch] sm:text-[15px] sm:leading-8 lg:mt-9 lg:max-w-[34ch] lg:text-[1rem] lg:leading-8">
               Criados-mudos em MDF de alta qualidade, com acabamentos impecáveis, desenhados para transformar o
               quarto com calma, organização e elegância.
             </p>
-            <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10 sm:min-h-[72px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="mt-8 flex flex-col items-start gap-3 sm:mt-8 sm:min-h-[72px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 lg:mt-10 lg:min-h-[84px] lg:gap-4">
               <Button className="w-full sm:w-auto" href="/categoria/criados-mudos" size="lg">
                 Conheça a coleção
               </Button>
               {activeProduct ? (
-                <div className="w-full max-w-full truncate rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-xs text-stone-700 sm:max-w-[270px] sm:text-sm">
+                <div className="w-full max-w-full truncate rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-[11px] text-stone-700 sm:max-w-[260px] sm:text-xs lg:max-w-[320px] lg:px-5 lg:py-2.5 lg:text-sm">
                   Em destaque: {activeProduct.name}
                 </div>
               ) : null}
             </div>
-            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-5 border-t border-stone-200 pt-6 sm:mt-10 sm:grid-cols-4 sm:gap-5 sm:pt-8">
+            <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-stone-200 pt-6 sm:mt-8 sm:grid-cols-4 sm:gap-x-4 sm:gap-y-5 sm:pt-7 lg:mt-10 lg:gap-x-7 lg:gap-y-6 lg:pt-8">
               {benefits.map(({ icon: Icon, label }) => (
-                <div className="space-y-3" key={label}>
-                  <Icon className="size-6 text-stone-500" />
-                  <p className="max-w-[12ch] text-[13px] leading-5 text-stone-700 sm:max-w-none sm:text-sm sm:leading-6">
+                <div className="grid min-h-[72px] content-start gap-2.5 lg:min-h-[88px] lg:gap-3" key={label}>
+                  <Icon className="size-4.5 text-stone-500 sm:size-6" />
+                  <p className="max-w-[10ch] text-[10px] leading-5 text-stone-700 sm:max-w-none sm:text-[11px] sm:leading-5 lg:max-w-[11ch] lg:text-sm lg:leading-6">
                     {label}
                   </p>
                 </div>
               ))}
             </div>
+            <p className="mt-4 text-[10px] leading-5 text-stone-500 sm:text-[11px] lg:mt-5 lg:text-[0.78rem]">Frete grátis para PR, SC e RS.</p>
           </div>
 
-          <div className="order-1 overflow-hidden lg:order-2 lg:h-[760px]">
+          <div className="order-1 overflow-hidden rounded-t-[2rem] lg:order-2 lg:h-[760px] lg:rounded-none">
             {activeProduct ? (
-              <div className="relative h-[360px] overflow-hidden rounded-[1.4rem] bg-[#d9c8b9] sm:h-[540px] sm:rounded-none lg:h-full">
+              <div className="relative h-[360px] overflow-hidden bg-[#d9c8b9] sm:h-[540px] lg:h-full">
                 {products.map((product, productIndex) => (
                   <Image
                     alt={product.images[0]?.alt || product.name}
@@ -126,22 +141,28 @@ export function Hero({ products }: HeroProps) {
                     </div>
                   </div>
 
-                  <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-5">
-                    {products.map((product, productIndex) => (
-                      <button
-                        className={cn(
-                          "shrink-0 whitespace-nowrap rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.18em] backdrop-blur transition sm:text-xs sm:tracking-[0.22em]",
-                          productIndex === index
-                            ? "border-white bg-white text-graphite"
-                            : "border-white/30 bg-white/10 text-white hover:bg-white/20"
-                        )}
-                        key={product.id}
-                        onClick={() => goToSlide(productIndex)}
-                        type="button"
-                      >
-                        {product.name}
-                      </button>
-                    ))}
+                  <div
+                    className="-mx-1 mt-4 overflow-x-auto px-1 pb-1 pr-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-5 sm:pr-20"
+                    ref={productTabsRef}
+                  >
+                    <div className="flex w-max gap-2">
+                      {products.map((product, productIndex) => (
+                        <button
+                          className={cn(
+                            "shrink-0 whitespace-nowrap rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.18em] backdrop-blur transition sm:text-xs sm:tracking-[0.22em]",
+                            productIndex === index
+                              ? "border-white bg-white text-graphite"
+                              : "border-white/30 bg-white/10 text-white hover:bg-white/20"
+                          )}
+                          data-product-index={productIndex}
+                          key={product.id}
+                          onClick={() => goToSlide(productIndex)}
+                          type="button"
+                        >
+                          {product.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="mt-4 flex gap-2">

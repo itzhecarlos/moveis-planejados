@@ -12,5 +12,18 @@ export async function requireAdminAccess() {
     redirect("/admin/login");
   }
 
-  return user;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, active, full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile || !profile.active || !["admin", "editor"].includes(profile.role)) {
+    redirect("/admin/login");
+  }
+
+  return {
+    user,
+    profile
+  };
 }

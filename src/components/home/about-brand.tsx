@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site";
 export function AboutBrand() {
   return (
     <section className="section-space">
-      <div className="container-shell grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="container-shell grid gap-10 rounded-[2rem] bg-white px-6 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-10">
         <div className="overflow-hidden rounded-[2rem]">
           <Image
             alt="Ambiente decorado com móvel Atlas"
@@ -17,7 +17,7 @@ export function AboutBrand() {
             width={1400}
           />
         </div>
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center rounded-[1.75rem] bg-stone-50/70 p-6 sm:p-8">
           <SectionHeading
             description="Cada peça é desenhada para entregar uso real, presença discreta e acabamento duradouro. Trabalhamos com uma leitura estética limpa, materiais selecionados e atenção aos detalhes que fazem a casa respirar melhor."
             eyebrow="Sobre a marca"

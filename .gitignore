@@ -1,8 +1,25 @@
 .next
 node_modules
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 dist
 coverage
 *.log
+.DS_Store
+Thumbs.db
+
+# local tooling
+.codex/
+.agents/
+
+# Supabase local artifacts and secrets
+supabase/.temp/
+supabase/.branches/
+supabase/config.toml.local
+
+# deployment / editor leftovers
+.vercel/
+.netlify/
+.idea/
+.vscode/
