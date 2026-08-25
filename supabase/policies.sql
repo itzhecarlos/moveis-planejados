@@ -2,6 +2,8 @@ create or replace function public.is_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1
@@ -16,6 +18,8 @@ create or replace function public.is_editor_or_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1
@@ -27,6 +31,7 @@ as $$
 $$;
 
 alter table public.profiles enable row level security;
+alter table public.customer_profiles enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_colors enable row level security;
@@ -154,6 +159,32 @@ create policy "admin reads profiles"
 on public.profiles for select
 using (public.is_admin());
 
+create policy "profile owner reads own profile"
+on public.profiles for select
+to authenticated
+using (id = auth.uid());
+
+create policy "customer reads own profile"
+on public.customer_profiles for select
+to authenticated
+using (id = auth.uid());
+
+create policy "customer inserts own profile"
+on public.customer_profiles for insert
+to authenticated
+with check (id = auth.uid());
+
+create policy "customer updates own profile"
+on public.customer_profiles for update
+to authenticated
+using (id = auth.uid())
+with check (id = auth.uid());
+
+create policy "admin reads customer profiles"
+on public.customer_profiles for select
+to authenticated
+using (public.is_editor_or_admin());
+
 create policy "admin manages audit"
 on public.admin_audit_logs for select
 using (public.is_admin());
@@ -170,3 +201,4 @@ grant select on public.products to anon, authenticated;
 grant select on public.product_colors to anon, authenticated;
 grant select on public.product_variants to anon, authenticated;
 grant select on public.product_images to anon, authenticated;
+grant select, insert, update on public.customer_profiles to authenticated;

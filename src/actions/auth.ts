@@ -2,13 +2,15 @@
 
 import { redirect } from "next/navigation";
 
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function signInAdmin(input: { email: string; password: string }) {
   const supabase = createSupabaseServerClient();
+  const email = input.email.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: input.email,
+    email,
     password: input.password
   });
 
@@ -16,7 +18,14 @@ export async function signInAdmin(input: { email: string; password: string }) {
     return { success: false as const, message: "E-mail ou senha inválidos." };
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const adminSupabase = createSupabaseAdminClient();
+
+  if (!adminSupabase) {
+    await supabase.auth.signOut();
+    return { success: false as const, message: "Supabase administrativo não está configurado." };
+  }
+
+  const { data: profile, error: profileError } = await adminSupabase
     .from("profiles")
     .select("role, active")
     .eq("id", data.user.id)

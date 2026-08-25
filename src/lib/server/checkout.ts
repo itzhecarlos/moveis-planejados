@@ -3,10 +3,10 @@ import "server-only";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   PIX_DISCOUNT_RATE,
-  calculateShippingAmount,
   normalizeBrazilState,
   roundCurrency
 } from "@/lib/checkout/pricing";
+import { quoteShipping } from "@/lib/server/shipping";
 import type { CheckoutInput } from "@/validations/checkout";
 
 type ProductRow = {
@@ -17,6 +17,8 @@ type ProductRow = {
   unit_price: number;
   pair_price: number | null;
   promotional_price: number | null;
+  dimensions: string | null;
+  weight: number | null;
   track_stock: boolean;
   stock_quantity: number;
 };
@@ -51,6 +53,7 @@ export async function createPendingOrderFromCheckout(
   payload: CheckoutInput,
   context?: {
     ip?: string | null;
+    userId?: string | null;
     userAgent?: string | null;
   }
 ) {
@@ -64,7 +67,7 @@ export async function createPendingOrderFromCheckout(
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, name, slug, sku, unit_price, pair_price, promotional_price, track_stock, stock_quantity")
+    .select("id, name, slug, sku, unit_price, pair_price, promotional_price, dimensions, weight, track_stock, stock_quantity")
     .in("id", productIds)
     .eq("active", true)
     .is("archived_at", null)
@@ -144,7 +147,22 @@ export async function createPendingOrderFromCheckout(
 
   const subtotal = roundCurrency(canonicalItems.reduce((acc, item) => acc + item.total, 0));
   const pixDiscount = payload.paymentMethod === "pix" ? roundCurrency(subtotal * PIX_DISCOUNT_RATE) : 0;
-  const shipping = calculateShippingAmount(payload.customer.state);
+  const shippingQuote = await quoteShipping({
+    postalCode: payload.customer.postalCode,
+    state: payload.customer.state,
+    products: canonicalItems.map((item) => {
+      const physicalQuantity = item.quantity * (item.purchaseType === "pair" ? 2 : 1);
+
+      return {
+        id: `${item.product.id}-${item.purchaseType}`,
+        dimensions: item.product.dimensions,
+        weight: item.product.weight,
+        insuranceValue: roundCurrency(item.total / physicalQuantity),
+        quantity: physicalQuantity
+      };
+    })
+  });
+  const shipping = shippingQuote.chargedAmount;
   const total = roundCurrency(subtotal - pixDiscount + shipping);
   const normalizedState = normalizeBrazilState(payload.customer.state);
   const orderNumber = buildOrderNumber();
@@ -154,8 +172,10 @@ export async function createPendingOrderFromCheckout(
     rules: {
       pixDiscountRate: PIX_DISCOUNT_RATE,
       freeShippingStates: ["PR", "SC", "RS"],
-      defaultShippingAmount: 149
+      shippingProvider: "melhor-envio",
+      maximumDeliveryDays: 15
     },
+    shippingQuote,
     items: canonicalItems.map((item) => ({
       productId: item.product.id,
       variantId: item.variant?.id || null,
@@ -193,6 +213,7 @@ export async function createPendingOrderFromCheckout(
       pricing_source: "supabase",
       pricing_snapshot: pricingSnapshot,
       customer_ip: context?.ip || null,
+      customer_user_id: context?.userId || null,
       customer_user_agent: context?.userAgent || null
     })
     .select("id")
@@ -229,7 +250,31 @@ export async function createPendingOrderFromCheckout(
     subtotal,
     pixDiscount,
     shipping,
-    total
+    total,
+    paymentMethod: payload.paymentMethod,
+    customer: {
+      fullName: payload.customer.fullName,
+      email: payload.customer.email,
+      phone: payload.customer.phone,
+      document: payload.customer.document,
+      postalCode: payload.customer.postalCode,
+      street: payload.customer.street,
+      number: payload.customer.number,
+      complement: payload.customer.complement || null,
+      neighborhood: payload.customer.neighborhood,
+      city: payload.customer.city,
+      state: normalizedState
+    },
+    items: canonicalItems.map((item) => ({
+      productId: item.product.id,
+      title: item.product.name,
+      description: item.purchaseType === "pair" ? "Compra em par" : "Compra unitária",
+      sku: item.variant?.sku || item.product.sku,
+      quantity: item.quantity,
+      purchaseType: item.purchaseType,
+      unitPrice: item.unitPrice,
+      total: item.total
+    }))
   };
 }
 

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminLoginPage() {
@@ -10,7 +11,14 @@ export default async function AdminLoginPage() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/admin");
+    const adminSupabase = createSupabaseAdminClient();
+    const { data: profile } = adminSupabase
+      ? await adminSupabase.from("profiles").select("role, active").eq("id", user.id).maybeSingle()
+      : { data: null };
+
+    if (profile?.active && ["admin", "editor"].includes(profile.role)) {
+      redirect("/admin");
+    }
   }
 
   return (

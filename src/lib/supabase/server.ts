@@ -12,8 +12,20 @@ export function createSupabaseServerClient() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        set(_name: string, _value: string, _options: Record<string, unknown>) {},
-        remove(_name: string, _options: Record<string, unknown>) {}
+        set(name: string, value: string, options: Record<string, unknown>) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch {
+            // Server Components cannot write cookies; Server Actions and Route Handlers can.
+          }
+        },
+        remove(name: string, options: Record<string, unknown>) {
+          try {
+            cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+          } catch {
+            // Server Components cannot write cookies; Server Actions and Route Handlers can.
+          }
+        }
       }
     }
   );

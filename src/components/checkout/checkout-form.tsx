@@ -13,13 +13,24 @@ import type { PaymentMethod } from "@/types";
 import { checkoutSchema, type CheckoutInput } from "@/validations/checkout";
 
 type CheckoutFormProps = {
+  initialCustomer?: CheckoutInput["customer"];
   paymentMethod: PaymentMethod;
   setPaymentMethod: (value: PaymentMethod) => void;
+  shippingPostalCode: string;
+  setShippingPostalCode: (value: string) => void;
   shippingState: string;
   setShippingState: (value: string) => void;
 };
 
-export function CheckoutForm({ paymentMethod, setPaymentMethod, shippingState, setShippingState }: CheckoutFormProps) {
+export function CheckoutForm({
+  initialCustomer,
+  paymentMethod,
+  setPaymentMethod,
+  shippingPostalCode,
+  setShippingPostalCode,
+  shippingState,
+  setShippingState
+}: CheckoutFormProps) {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
@@ -30,7 +41,7 @@ export function CheckoutForm({ paymentMethod, setPaymentMethod, shippingState, s
     defaultValues: {
       items,
       paymentMethod,
-      customer: {
+      customer: initialCustomer || {
         fullName: "",
         email: "",
         phone: "",
@@ -114,7 +125,16 @@ export function CheckoutForm({ paymentMethod, setPaymentMethod, shippingState, s
         <Input placeholder="E-mail" type="email" {...fields("customer.email")} />
         <Input placeholder="Telefone" {...fields("customer.phone")} />
         <Input placeholder="CPF ou CNPJ" {...fields("customer.document")} />
-        <Input placeholder="CEP" {...fields("customer.postalCode")} />
+        <Input
+          inputMode="numeric"
+          placeholder="CEP"
+          value={shippingPostalCode}
+          {...fields("customer.postalCode", {
+            onChange: (event) => {
+              setShippingPostalCode(String(event.target.value || ""));
+            }
+          })}
+        />
         <Input placeholder="Rua" {...fields("customer.street")} />
         <Input placeholder="Número" {...fields("customer.number")} />
         <Input placeholder="Complemento" {...fields("customer.complement")} />

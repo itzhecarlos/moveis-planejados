@@ -19,6 +19,31 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.customer_profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text not null,
+  full_name text not null,
+  phone text not null,
+  document_type text not null check (document_type in ('cpf', 'cnpj')),
+  document_number text not null,
+  is_company boolean not null default false,
+  legal_name text,
+  trade_name text,
+  state_registration text,
+  municipal_registration text,
+  postal_code text not null,
+  street text not null,
+  number text not null,
+  complement text,
+  neighborhood text not null,
+  city text not null,
+  state text not null,
+  notes text,
+  fiscal_consent boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -190,6 +215,8 @@ create table if not exists public.admin_audit_logs (
 );
 
 create index if not exists idx_products_slug on public.products(slug);
+create unique index if not exists idx_customer_profiles_email on public.customer_profiles(lower(email));
+create unique index if not exists idx_customer_profiles_document_number on public.customer_profiles(document_number);
 create index if not exists idx_products_category_id on public.products(category_id);
 create index if not exists idx_products_active on public.products(active);
 create index if not exists idx_products_archived_at on public.products(archived_at);
@@ -203,6 +230,7 @@ create index if not exists idx_order_items_order_id on public.order_items(order_
 create index if not exists idx_payment_events_provider_event_id on public.payment_events(provider_event_id);
 
 create trigger set_profiles_updated_at before update on public.profiles for each row execute function public.set_updated_at();
+create trigger set_customer_profiles_updated_at before update on public.customer_profiles for each row execute function public.set_updated_at();
 create trigger set_categories_updated_at before update on public.categories for each row execute function public.set_updated_at();
 create trigger set_products_updated_at before update on public.products for each row execute function public.set_updated_at();
 create trigger set_product_variants_updated_at before update on public.product_variants for each row execute function public.set_updated_at();
@@ -214,6 +242,8 @@ alter table public.orders add column if not exists pricing_source text not null 
 alter table public.orders add column if not exists pricing_snapshot jsonb;
 alter table public.orders add column if not exists customer_ip text;
 alter table public.orders add column if not exists customer_user_agent text;
+alter table public.orders add column if not exists customer_user_id uuid references auth.users(id) on delete set null;
+create index if not exists idx_orders_customer_user_id on public.orders(customer_user_id);
 
 create or replace function public.normalize_br_state(value text)
 returns text
