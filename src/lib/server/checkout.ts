@@ -36,6 +36,7 @@ type VariantRow = {
 
 type ColorRow = {
   id: string;
+  product_id: string;
   name: string;
 };
 
@@ -89,7 +90,7 @@ export async function createPendingOrderFromCheckout(
 
   const colorIds = [...new Set((variants || []).map((variant) => variant.color_id).filter(Boolean))] as string[];
   const { data: colors, error: colorsError } = colorIds.length
-    ? await supabase.from("product_colors").select("id, name").in("id", colorIds)
+    ? await supabase.from("product_colors").select("id, product_id, name").in("id", colorIds).eq("active", true)
     : { data: [], error: null };
 
   if (colorsError) {
@@ -114,6 +115,12 @@ export async function createPendingOrderFromCheckout(
     }
 
     const availableVariants = variantsByProduct.get(product.id) || [];
+    if (item.variantId && !availableVariants.some((entry) => entry.id === item.variantId)) {
+      throw new Error("A variante selecionada nao esta disponivel.");
+    }
+    if (!item.variantId && availableVariants.length > 0) {
+      throw new Error("Selecione uma variante para este produto.");
+    }
     const variant =
       availableVariants.find((entry) => entry.id === item.variantId) ||
       availableVariants[0] ||
@@ -121,6 +128,11 @@ export async function createPendingOrderFromCheckout(
 
     if (item.variantId && !variant) {
       throw new Error(`A variação selecionada para ${product.name} não está disponível.`);
+    }
+
+    const color = variant?.color_id ? colorMap.get(variant.color_id) || null : null;
+    if (variant?.color_id && (!color || color.product_id !== product.id)) {
+      throw new Error("A cor selecionada nao pertence ao produto.");
     }
 
     const basePrice =
@@ -137,7 +149,7 @@ export async function createPendingOrderFromCheckout(
     return {
       product,
       variant,
-      color: variant?.color_id ? colorMap.get(variant.color_id) || null : null,
+      color,
       quantity: item.quantity,
       purchaseType: item.purchaseType,
       unitPrice,
@@ -186,9 +198,7 @@ export async function createPendingOrderFromCheckout(
     }))
   };
 
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({
+  const orderPayload = {
       order_number: orderNumber,
       customer_name: payload.customer.fullName,
       customer_email: payload.customer.email,
@@ -212,32 +222,35 @@ export async function createPendingOrderFromCheckout(
       currency_code: "BRL",
       pricing_source: "supabase",
       pricing_snapshot: pricingSnapshot,
-      customer_ip: context?.ip || null,
+      customer_ip: context?.ip?.split(",")[0]?.trim() || null,
       customer_user_id: context?.userId || null,
       customer_user_agent: context?.userAgent || null
-    })
-    .select("id")
-    .single();
+    };
+
+  const orderItemsPayload = canonicalItems.map((item) => ({
+    product_id: item.product.id,
+    variant_id: item.variant?.id || null,
+    product_name: item.product.name,
+    product_sku: item.variant?.sku || item.product.sku,
+    variation_name: item.variant?.name || null,
+    color_name: item.color?.name || null,
+    purchase_type: item.purchaseType,
+    quantity: item.quantity,
+    unit_price: item.unitPrice,
+    total_price: item.total
+  }));
+
+  const { data: createdOrder, error: orderError } = await supabase.rpc("create_checkout_order", {
+    p_order: orderPayload,
+    p_items: orderItemsPayload
+  });
+  const order = Array.isArray(createdOrder) ? createdOrder[0] : createdOrder;
 
   if (orderError || !order) {
     throw new Error("Não foi possível criar o pedido com segurança no banco de dados.");
   }
 
-  const { error: orderItemsError } = await supabase.from("order_items").insert(
-    canonicalItems.map((item) => ({
-      order_id: order.id,
-      product_id: item.product.id,
-      variant_id: item.variant?.id || null,
-      product_name: item.product.name,
-      product_sku: item.variant?.sku || item.product.sku,
-      variation_name: item.variant?.name || null,
-      color_name: item.color?.name || null,
-      purchase_type: item.purchaseType,
-      quantity: item.quantity,
-      unit_price: item.unitPrice,
-      total_price: item.total
-    }))
-  );
+  const orderItemsError = null;
 
   if (orderItemsError) {
     await supabase.from("orders").delete().eq("id", order.id);

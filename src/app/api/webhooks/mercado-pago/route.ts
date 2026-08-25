@@ -14,6 +14,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!process.env.MERCADO_PAGO_WEBHOOK_SECRET) {
+    console.error("Mercado Pago webhook rejected: MERCADO_PAGO_WEBHOOK_SECRET is not configured.");
+    return NextResponse.json({ ok: false, error: "Webhook unavailable." }, { status: 503 });
+  }
+  if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+    console.error("Mercado Pago webhook rejected: access token is not configured.");
+    return NextResponse.json({ ok: false, error: "Webhook unavailable." }, { status: 503 });
+  }
   const url = new URL(request.url);
   const payload = await request.json().catch(() => null);
   const dataId = getDataId(payload, url);
@@ -37,37 +45,54 @@ export async function POST(request: Request) {
   const providerEventId = String(paymentId || payload?.action || payload?.type || randomUUID());
   const eventType = String(payload?.type || payload?.action || url.searchParams.get("topic") || "unknown");
 
-  let paymentStatus = String(payload?.status || "pending");
-  let externalReference: string | null = payload?.external_reference || null;
-  let preferenceId: string | null = payload?.preference_id || null;
-  let paymentMethodId: string | null = payload?.payment_method_id || null;
-  let paymentTypeId: string | null = payload?.payment_type_id || null;
+  let paymentStatus = "pending";
+  let externalReference: string | null = null;
+  let preferenceId: string | null = null;
+  let paymentMethodId: string | null = null;
+  let paymentTypeId: string | null = null;
+  let transactionAmount: number | null = null;
+  let currencyId: string | null = null;
 
-  if (paymentId && process.env.MERCADO_PAGO_ACCESS_TOKEN) {
-    const payment = await fetchMercadoPagoPayment(String(paymentId)).catch(() => null);
-
-    if (payment) {
-      paymentStatus = payment.status || paymentStatus;
-      externalReference = payment.external_reference || externalReference;
-      preferenceId = payment.preference_id || preferenceId;
-      paymentMethodId = payment.payment_method_id || paymentMethodId;
-      paymentTypeId = payment.payment_type_id || paymentTypeId;
-    }
+  if (!paymentId) {
+    return NextResponse.json({ ok: false, error: "Payment id is required." }, { status: 400 });
   }
+  const payment = await fetchMercadoPagoPayment(String(paymentId)).catch((error) => {
+    console.error("Mercado Pago payment lookup failed", error);
+    return null;
+  });
+  if (!payment) {
+    return NextResponse.json({ ok: false, error: "Payment could not be verified." }, { status: 502 });
+  }
+  paymentStatus = payment.status || "pending";
+  externalReference = payment.external_reference || null;
+  preferenceId = payment.preference_id || null;
+  paymentMethodId = payment.payment_method_id || null;
+  paymentTypeId = payment.payment_type_id || null;
+  transactionAmount = payment.transaction_amount ?? null;
+  currencyId = payment.currency_id ?? null;
 
   let orderId: string | null = null;
 
   if (externalReference) {
     const { data: order } = await supabase
       .from("orders")
-      .select("id")
+      .select("id, total, currency_code, mercado_pago_preference_id, payment_status")
       .eq("order_number", externalReference)
       .maybeSingle();
 
     orderId = order?.id || null;
+    if (!order) return NextResponse.json({ ok: false, error: "Order not found." }, { status: 404 });
+    if (preferenceId && order.mercado_pago_preference_id && preferenceId !== order.mercado_pago_preference_id) {
+      console.error("Mercado Pago preference mismatch", { paymentId, externalReference });
+      return NextResponse.json({ ok: false, error: "Payment does not match order." }, { status: 400 });
+    }
+    if (paymentStatus === "approved" && (currencyId !== "BRL" || transactionAmount === null || Number(order.total) !== Number(transactionAmount))) {
+      console.error("Mercado Pago amount/currency mismatch", { paymentId, externalReference, transactionAmount, currencyId });
+      paymentStatus = "under_review";
+    }
   }
 
-  await supabase.from("payment_events").upsert(
+  const { error: eventError } = await supabase.from("payment_events").insert(
     {
       order_id: orderId,
       provider: "mercado-pago",
@@ -85,12 +110,13 @@ export async function POST(request: Request) {
         }
       },
       processed_at: new Date().toISOString()
-    },
-    {
-      onConflict: "provider_event_id",
-      ignoreDuplicates: true
-    }
-  );
+    });
+
+  if (eventError?.code === "23505") return NextResponse.json({ ok: true, received: true, duplicate: true });
+  if (eventError) {
+    console.error("Mercado Pago event persistence failed", eventError);
+    return NextResponse.json({ ok: false, error: "Webhook processing failed." }, { status: 500 });
+  }
 
   if (externalReference) {
     await supabase
@@ -101,7 +127,13 @@ export async function POST(request: Request) {
         mercado_pago_payment_id: paymentId ? String(paymentId) : null,
         mercado_pago_preference_id: preferenceId
       })
-      .eq("order_number", externalReference);
+      .eq("order_number", externalReference)
+      .neq("payment_status", "approved");
+
+    if (orderId && ["rejected", "cancelled"].includes(paymentStatus)) {
+      const { error: releaseError } = await supabase.rpc("release_checkout_reservation", { p_order_id: orderId });
+      if (releaseError) console.error("Failed to release checkout reservation", releaseError);
+    }
   }
 
   return NextResponse.json({
@@ -118,7 +150,7 @@ function getDataId(payload: any, url: URL) {
 function isValidWebhookSignature(request: Request, dataId: string | null) {
   const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
 
-  if (!secret) return true;
+  if (!secret) return false;
 
   const xSignature = request.headers.get("x-signature");
   const xRequestId = request.headers.get("x-request-id");
@@ -136,6 +168,8 @@ function isValidWebhookSignature(request: Request, dataId: string | null) {
   const hash = parts.v1;
 
   if (!ts || !hash) return false;
+  const timestamp = Number(ts);
+  if (!Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp * 1000) > 5 * 60 * 1000) return false;
 
   const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
@@ -162,6 +196,8 @@ function mapPaymentStatus(status: string) {
       return "refunded";
     case "charged_back":
       return "charged_back";
+    case "under_review":
+      return "pending";
     default:
       return "pending";
   }

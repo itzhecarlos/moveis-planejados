@@ -3,6 +3,18 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function requireAdminAccess() {
+  return requireRole(["admin", "editor"]);
+}
+
+export async function requireAdminRole() {
+  return requireRole(["admin"]);
+}
+
+export async function requireEditorOrAdmin() {
+  return requireRole(["admin", "editor"]);
+}
+
+async function requireRole(roles: Array<"admin" | "editor">) {
   const supabase = createSupabaseServerClient();
   const {
     data: { user }
@@ -18,7 +30,7 @@ export async function requireAdminAccess() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile || !profile.active || !["admin", "editor"].includes(profile.role)) {
+  if (!profile || !profile.active || !roles.includes(profile.role)) {
     redirect("/admin/login");
   }
 

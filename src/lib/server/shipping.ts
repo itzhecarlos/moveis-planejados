@@ -162,7 +162,8 @@ export async function quoteShipping({
         own_hand: false
       }
     }),
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000)
   });
 
   if (!response.ok) {
@@ -219,6 +220,7 @@ async function resolvePostalCodeState(postalCode: string) {
     headers: {
       Accept: "application/json"
     },
+    signal: AbortSignal.timeout(5_000),
     next: {
       revalidate: 86400
     }

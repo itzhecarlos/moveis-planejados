@@ -3,11 +3,19 @@ import { NextResponse } from "next/server";
 import { createPreference } from "@/lib/mercado-pago";
 import { createPendingOrderFromCheckout, attachPreferenceToOrder } from "@/lib/server/checkout";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requestIp, takeRateLimit } from "@/lib/server/rate-limit";
 import { formatCurrency } from "@/lib/utils";
 import { checkoutSchema } from "@/validations/checkout";
 
 export async function POST(request: Request) {
   try {
+    const ip = requestIp(request);
+    const minuteLimit = takeRateLimit(`checkout:minute:${ip}`, 8, 60_000);
+    const hourLimit = takeRateLimit(`checkout:hour:${ip}`, 30, 60 * 60_000);
+    if (!minuteLimit.allowed || !hourLimit.allowed) {
+      const retryAfter = Math.max(minuteLimit.retryAfterSeconds, hourLimit.retryAfterSeconds);
+      return NextResponse.json({ error: "Muitas tentativas. Tente novamente em instantes." }, { status: 429, headers: { "Retry-After": String(retryAfter) } });
+    }
     const body = await request.json();
     const payload = checkoutSchema.parse(body);
     const supabase = createSupabaseServerClient();
@@ -16,7 +24,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     const order = await createPendingOrderFromCheckout(payload, {
-      ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip"),
+      ip,
       userId: user?.id || null,
       userAgent: request.headers.get("user-agent")
     });
@@ -36,7 +44,10 @@ export async function POST(request: Request) {
       }
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro inesperado ao processar checkout.";
+    console.error("Checkout creation failed", error);
+    const message = error instanceof Error && /Produto|variante|Estoque|checkout|CEP|UF/.test(error.message)
+      ? error.message
+      : "NÃ£o foi possÃ­vel processar seu pedido.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

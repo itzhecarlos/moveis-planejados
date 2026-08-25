@@ -16,6 +16,8 @@ type MercadoPagoPayment = {
   preference_id?: string;
   payment_method_id?: string;
   payment_type_id?: string;
+  transaction_amount?: number;
+  currency_id?: string;
 };
 
 type MercadoPagoPreferenceInput = {
@@ -128,7 +130,8 @@ export async function createPreference(input: MercadoPagoPreferenceInput): Promi
         shipping: input.shipping,
         total: input.total
       }
-    })
+    }),
+    signal: AbortSignal.timeout(10_000)
   });
 
   if (!response.ok) {
@@ -148,7 +151,8 @@ export async function fetchMercadoPagoPayment(paymentId: string): Promise<Mercad
     headers: {
       Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
     },
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000)
   });
 
   if (!response.ok) {
