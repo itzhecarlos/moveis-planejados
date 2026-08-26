@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 
+export type BadgeTone = "default" | "success" | "warning" | "danger";
+
 type BadgeProps = {
   children: React.ReactNode;
-  tone?: "default" | "success" | "warning";
+  tone?: BadgeTone;
 };
 
 export function Badge({ children, tone = "default" }: BadgeProps) {
@@ -12,7 +14,8 @@ export function Badge({ children, tone = "default" }: BadgeProps) {
         "inline-flex w-fit self-start rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.22em] sm:text-[11px] sm:tracking-[0.24em]",
         tone === "default" && "bg-stone-100 text-stone-700",
         tone === "success" && "bg-emerald-100 text-emerald-700",
-        tone === "warning" && "bg-amber-100 text-amber-700"
+        tone === "warning" && "bg-amber-100 text-amber-700",
+        tone === "danger" && "bg-rose-100 text-rose-700"
       )}
     >
       {children}

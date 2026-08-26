@@ -62,6 +62,7 @@ export async function createPreference(input: MercadoPagoPreferenceInput): Promi
 
   const siteUrl = siteConfig.url.replace(/\/$/, "");
   const lineItemDiscountFactor = input.subtotal > 0 ? (input.subtotal - input.pixDiscount) / input.subtotal : 1;
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
@@ -79,6 +80,9 @@ export async function createPreference(input: MercadoPagoPreferenceInput): Promi
         failure: `${siteUrl}/pagamento/falha?pedido=${encodeURIComponent(input.orderNumber)}`
       },
       auto_return: "approved",
+      expires: true,
+      expiration_date_from: new Date().toISOString(),
+      expiration_date_to: expiresAt.toISOString(),
       items: input.items.map((item) => ({
         id: item.sku || item.productId,
         title: item.title,
