@@ -82,10 +82,16 @@ export function CheckoutForm({
     router.push(data.init_point || "/pagamento/pendente");
   }
 
+  function onInvalid() {
+    form.setError("root", {
+      message: "Revise os dados obrigatórios do pedido antes de continuar."
+    });
+  }
+
   const fields = form.register;
 
   return (
-    <form className="space-y-8 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft sm:p-8" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-8 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft sm:p-8" onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
       <div>
         <h2 className="font-serif text-3xl">Dados para entrega e pagamento</h2>
         <p className="mt-3 text-sm leading-7 text-stone-600">
