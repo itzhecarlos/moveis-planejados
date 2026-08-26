@@ -33,9 +33,7 @@ export async function POST(request: Request) {
     await attachPreferenceToOrder(order.id, preference.id);
 
     const isTestAccessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN?.startsWith("TEST-");
-    const checkoutUrl = isTestAccessToken
-      ? preference.sandbox_init_point || preference.init_point
-      : preference.init_point || preference.sandbox_init_point;
+    const checkoutUrl = preference.init_point || preference.sandbox_init_point;
 
     if (!checkoutUrl) {
       throw new Error("O Mercado Pago não retornou um link de pagamento.");
