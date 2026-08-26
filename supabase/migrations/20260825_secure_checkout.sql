@@ -42,25 +42,25 @@ begin
   for v_item in select value from jsonb_array_elements(p_items)
   loop
     select track_stock into v_track_stock
-    from public.products
-    where id = (v_item->>'product_id')::uuid and active = true and archived_at is null and deleted_at is null
+    from public.products as product
+    where product.id = (v_item->>'product_id')::uuid and product.active = true and product.archived_at is null and product.deleted_at is null
     for update;
     if not found then raise exception 'product unavailable' using errcode = 'P0001'; end if;
 
     if v_track_stock then
       if nullif(v_item->>'variant_id', '') is not null then
-        update public.product_variants
+        update public.product_variants as product_variant
         set stock_quantity = stock_quantity - (v_item->>'quantity')::integer
-        where id = (v_item->>'variant_id')::uuid
-          and product_id = (v_item->>'product_id')::uuid
-          and active = true
-          and stock_quantity >= (v_item->>'quantity')::integer
+        where product_variant.id = (v_item->>'variant_id')::uuid
+          and product_variant.product_id = (v_item->>'product_id')::uuid
+          and product_variant.active = true
+          and product_variant.stock_quantity >= (v_item->>'quantity')::integer
         returning stock_quantity + (v_item->>'quantity')::integer, stock_quantity into v_previous_stock, v_new_stock;
       else
-        update public.products
+        update public.products as product
         set stock_quantity = stock_quantity - (v_item->>'quantity')::integer
-        where id = (v_item->>'product_id')::uuid
-          and stock_quantity >= (v_item->>'quantity')::integer
+        where product.id = (v_item->>'product_id')::uuid
+          and product.stock_quantity >= (v_item->>'quantity')::integer
         returning stock_quantity + (v_item->>'quantity')::integer, stock_quantity into v_previous_stock, v_new_stock;
       end if;
       if not found then raise exception 'insufficient stock' using errcode = 'P0001'; end if;
