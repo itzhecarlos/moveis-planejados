@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { type FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
@@ -82,9 +82,24 @@ export function CheckoutForm({
     router.push(data.init_point || "/pagamento/pendente");
   }
 
-  function onInvalid() {
+  function onInvalid(errors: FieldErrors<CheckoutInput>) {
+    const customerErrors = errors.customer;
+    const fieldMessages = [
+      customerErrors?.fullName && "Informe um nome completo válido.",
+      customerErrors?.email && "Informe um e-mail válido.",
+      customerErrors?.phone && "Informe um telefone válido.",
+      customerErrors?.document && "Informe um CPF ou CNPJ válido.",
+      customerErrors?.postalCode && "Informe um CEP válido.",
+      customerErrors?.street && "Informe a rua.",
+      customerErrors?.number && "Informe o número do endereço.",
+      customerErrors?.neighborhood && "Informe o bairro.",
+      customerErrors?.city && "Informe a cidade.",
+      customerErrors?.state && "Informe a UF com duas letras, por exemplo SP.",
+      customerErrors?.acceptedTerms && "Você precisa aceitar os termos para continuar.",
+      errors.items && "Seu carrinho possui um item inválido. Remova e adicione o produto novamente."
+    ];
     form.setError("root", {
-      message: "Revise os dados obrigatórios do pedido antes de continuar."
+      message: fieldMessages.find(Boolean) || "Revise os dados obrigatórios do pedido antes de continuar."
     });
   }
 
