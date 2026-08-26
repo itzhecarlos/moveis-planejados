@@ -161,7 +161,7 @@ export function OrderSummary({
           </p>
         ) : (
           <p className="text-xs text-stone-500">
-            Entrega em até {MAX_SHIPPING_DELIVERY_DAYS} dias úteis.
+            Entrega em até {MAX_SHIPPING_DELIVERY_DAYS} dias corridos.
           </p>
         )}
 
