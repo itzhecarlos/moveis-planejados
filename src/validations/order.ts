@@ -6,6 +6,7 @@ export const fulfillmentStatusSchema = z.enum([
   "in_production",
   "ready_for_shipping",
   "shipped",
+  "in_transit",
   "delivered",
   "cancelled"
 ]);

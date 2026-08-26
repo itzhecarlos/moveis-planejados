@@ -80,6 +80,7 @@ export type OrderStatus =
   | "in_production"
   | "ready_for_shipping"
   | "shipped"
+  | "in_transit"
   | "delivered"
   | "cancelled";
 

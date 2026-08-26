@@ -12,9 +12,10 @@ const paymentStatus: Record<string, { label: string; tone: BadgeTone }> = {
 const fulfillmentStatus: Record<string, { label: string; tone: BadgeTone }> = {
   awaiting_payment: { label: "Aguardando pagamento", tone: "warning" },
   payment_confirmed: { label: "Pagamento confirmado", tone: "success" },
-  in_production: { label: "Em produção", tone: "warning" },
+  in_production: { label: "Em preparo", tone: "warning" },
   ready_for_shipping: { label: "Pronto para envio", tone: "success" },
   shipped: { label: "Enviado", tone: "success" },
+  in_transit: { label: "A caminho", tone: "success" },
   delivered: { label: "Entregue", tone: "success" },
   cancelled: { label: "Pedido cancelado", tone: "default" }
 };

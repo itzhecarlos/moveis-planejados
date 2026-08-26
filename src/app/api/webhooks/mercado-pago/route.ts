@@ -127,7 +127,7 @@ export async function POST(request: Request) {
         payment_status: nextPaymentStatus,
         ...(["refunded", "charged_back"].includes(nextPaymentStatus)
           ? {}
-          : { fulfillment_status: nextPaymentStatus === "approved" ? "payment_confirmed" : "awaiting_payment" }),
+          : { fulfillment_status: nextPaymentStatus === "approved" ? "in_production" : "awaiting_payment" }),
         mercado_pago_payment_id: paymentId ? String(paymentId) : null,
         mercado_pago_preference_id: preferenceId
       })
