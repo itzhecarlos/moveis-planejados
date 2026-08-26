@@ -124,3 +124,6 @@ grant execute on function public.release_checkout_reservation(uuid) to service_r
 
 create unique index if not exists idx_payment_events_provider_event on public.payment_events(provider, provider_event_id);
 create index if not exists idx_orders_order_number on public.orders(order_number);
+
+alter table public.profiles force row level security;
+alter table public.customer_profiles force row level security;

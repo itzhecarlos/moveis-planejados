@@ -9,5 +9,5 @@ export type ShippingQuote = {
   deliveryDays: number;
   serviceName: string;
   carrierName: string;
-  source: "melhor-envio";
+  source: "fixed";
 };

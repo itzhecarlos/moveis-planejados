@@ -2,7 +2,9 @@ import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 
 import { fetchMercadoPagoPayment } from "@/lib/mercado-pago";
+import { sendApprovedOrderEmail } from "@/lib/resend";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { formatCurrency } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -33,16 +35,12 @@ export async function POST(request: Request) {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
-    return NextResponse.json({
-      ok: true,
-      received: true,
-      provider: "mercado-pago",
-      note: "Webhook recebido, mas o Supabase não está configurado no ambiente."
-    });
+    console.error("Mercado Pago webhook rejected: Supabase administrative client is unavailable.");
+    return NextResponse.json({ ok: false, error: "Webhook unavailable." }, { status: 503 });
   }
 
   const paymentId = dataId || payload?.id;
-  const providerEventId = String(paymentId || payload?.action || payload?.type || randomUUID());
+  let providerEventId = String(paymentId || payload?.action || payload?.type || randomUUID());
   const eventType = String(payload?.type || payload?.action || url.searchParams.get("topic") || "unknown");
 
   let paymentStatus = "pending";
@@ -70,6 +68,9 @@ export async function POST(request: Request) {
   paymentTypeId = payment.payment_type_id || null;
   transactionAmount = payment.transaction_amount ?? null;
   currencyId = payment.currency_id ?? null;
+  // Mercado Pago can notify a payment more than once as it advances through states.
+  // The status is included so pending -> approved is not incorrectly discarded as a duplicate.
+  providerEventId = `${paymentId}:${paymentStatus}`;
 
   let orderId: string | null = null;
 
@@ -118,21 +119,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Webhook processing failed." }, { status: 500 });
   }
 
-  if (externalReference) {
-    await supabase
+  if (externalReference && orderId) {
+    const nextPaymentStatus = mapPaymentStatus(paymentStatus);
+    const updateOrder = supabase
       .from("orders")
       .update({
-        payment_status: mapPaymentStatus(paymentStatus),
-        fulfillment_status: paymentStatus === "approved" ? "payment_confirmed" : "awaiting_payment",
+        payment_status: nextPaymentStatus,
+        ...(["refunded", "charged_back"].includes(nextPaymentStatus)
+          ? {}
+          : { fulfillment_status: nextPaymentStatus === "approved" ? "payment_confirmed" : "awaiting_payment" }),
         mercado_pago_payment_id: paymentId ? String(paymentId) : null,
         mercado_pago_preference_id: preferenceId
       })
-      .eq("order_number", externalReference)
-      .neq("payment_status", "approved");
+      .eq("id", orderId);
+
+    if (["refunded", "charged_back"].includes(nextPaymentStatus)) {
+      await updateOrder.eq("payment_status", "approved");
+    } else {
+      await updateOrder.eq("payment_status", "pending");
+    }
 
     if (orderId && ["rejected", "cancelled"].includes(paymentStatus)) {
       const { error: releaseError } = await supabase.rpc("release_checkout_reservation", { p_order_id: orderId });
       if (releaseError) console.error("Failed to release checkout reservation", releaseError);
+    }
+
+    if (nextPaymentStatus === "approved") {
+      const { data: emailOrder } = await supabase
+        .from("orders")
+        .select("id, order_number, customer_email, customer_name, total")
+        .eq("id", orderId)
+        .eq("email_sent", false)
+        .maybeSingle();
+
+      if (emailOrder) {
+        try {
+          const result = await sendApprovedOrderEmail({
+            orderNumber: emailOrder.order_number,
+            customerEmail: emailOrder.customer_email,
+            customerName: emailOrder.customer_name,
+            total: formatCurrency(Number(emailOrder.total))
+          });
+          if (!("skipped" in result) && result.error === null) {
+            await supabase.from("orders").update({ email_sent: true }).eq("id", emailOrder.id).eq("email_sent", false);
+          }
+        } catch (error) {
+          console.error("Approved-order email failed", { orderId, error });
+        }
+      }
     }
   }
 

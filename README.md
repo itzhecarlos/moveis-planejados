@@ -38,6 +38,10 @@ Copie `.env.example` para `.env.local` e preencha:
 5. Crie um usuário no Auth.
 6. Promova o usuário a admin inserindo um registro em `public.profiles` com `role = 'admin'`.
 
+## Frete
+
+O projeto usa uma regra fixa calculada no servidor: frete grátis para PR, SC e RS; R$ 149 para os demais estados. A transportadora é definida pela loja após a compra, sem integração obrigatória com Melhor Envio.
+
 ## Bucket de imagens
 
 Crie o bucket `product-images` no Supabase Storage e permita upload apenas para `admin` e `editor`.
@@ -59,7 +63,7 @@ Configure as credenciais sem o prefixo `NEXT_PUBLIC_`. Em especial, o webhook do
 - [ ] `SUPABASE_SECRET_KEY` configurada somente no ambiente server-side
 - [ ] `MERCADO_PAGO_WEBHOOK_SECRET` configurado no Mercado Pago e na Netlify
 - [ ] domínio HTTPS configurado em `NEXT_PUBLIC_SITE_URL`
-- [ ] credenciais de produção do Mercado Pago e Melhor Envio configuradas
+- [ ] credenciais de produção do Mercado Pago configuradas
 - [ ] primeiro admin criado em `public.profiles`
 - [ ] backups e Supabase Security Advisor revisados
 - [ ] rate limit/WAF da Netlify habilitado quando disponível

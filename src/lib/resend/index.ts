@@ -18,6 +18,16 @@ export async function sendApprovedOrderEmail(params: {
     from: "Atlas Móveis <pedidos@atlasmoveis.com.br>",
     to: [params.customerEmail, process.env.STORE_NOTIFICATION_EMAIL],
     subject: `Pedido ${params.orderNumber} aprovado`,
-    html: `<p>Olá, ${params.customerName}.</p><p>Seu pagamento foi aprovado e o pedido <strong>${params.orderNumber}</strong> foi confirmado.</p><p>Total: ${params.total}</p>`
+    html: `<p>Olá, ${escapeHtml(params.customerName)}.</p><p>Seu pagamento foi aprovado e o pedido <strong>${escapeHtml(params.orderNumber)}</strong> foi confirmado.</p><p>Total: ${escapeHtml(params.total)}</p>`
   });
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;"
+  })[character] || character);
 }

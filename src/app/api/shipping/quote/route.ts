@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { quoteShippingForCart } from "@/lib/server/shipping";
+import { requestIp, takeRateLimit } from "@/lib/server/rate-limit";
 import { checkoutItemSchema } from "@/validations/checkout";
 
 const shippingQuoteSchema = z.object({
@@ -12,6 +13,13 @@ const shippingQuoteSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const limit = takeRateLimit(`shipping:${requestIp(request)}`, 20, 60_000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: "Muitas consultas de frete. Tente novamente em instantes." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+      );
+    }
     const payload = shippingQuoteSchema.parse(await request.json());
     const quote = await quoteShippingForCart(payload.items, payload.postalCode, payload.state);
 

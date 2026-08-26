@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { takeRateLimit } from "@/lib/server/rate-limit";
 import {
   customerFiscalProfileSchema,
   customerSignInSchema,
@@ -25,6 +27,10 @@ export async function signUpCustomer(input: unknown): Promise<ActionResult> {
   }
 
   const supabase = createSupabaseServerClient();
+  const ip = headers().get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!takeRateLimit(`customer-signup:${ip}`, 5, 60_000).allowed) {
+    return { success: false, message: "Muitas tentativas. Aguarde alguns instantes." };
+  }
   const adminSupabase = createSupabaseAdminClient();
 
   if (!adminSupabase) {
@@ -63,6 +69,10 @@ export async function signInCustomer(input: unknown): Promise<ActionResult> {
   }
 
   const supabase = createSupabaseServerClient();
+  const ip = headers().get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!takeRateLimit(`customer-login:${ip}:${payload.data.email.trim().toLowerCase()}`, 8, 60_000).allowed) {
+    return { success: false, message: "Muitas tentativas. Aguarde alguns instantes." };
+  }
   const { error } = await supabase.auth.signInWithPassword({
     email: payload.data.email.trim().toLowerCase(),
     password: payload.data.password

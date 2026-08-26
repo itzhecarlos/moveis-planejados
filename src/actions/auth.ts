@@ -1,13 +1,20 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { takeRateLimit } from "@/lib/server/rate-limit";
 
 export async function signInAdmin(input: { email: string; password: string }) {
   const supabase = createSupabaseServerClient();
   const email = input.email.trim().toLowerCase();
+  const ip = headers().get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const limit = takeRateLimit(`admin-login:${ip}:${email}`, 5, 60_000);
+  if (!limit.allowed) {
+    return { success: false as const, message: "Muitas tentativas. Aguarde alguns instantes." };
+  }
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
