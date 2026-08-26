@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { type FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,15 +62,21 @@ export function CheckoutForm({
 
   async function onSubmit(values: CheckoutInput) {
     setSubmitting(true);
-    const response = await fetch("/api/checkout/mercado-pago", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, items, paymentMethod })
-    });
-
-    setSubmitting(false);
+    let response: Response;
+    try {
+      response = await fetch("/api/checkout/mercado-pago", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, items, paymentMethod })
+      });
+    } catch {
+      setSubmitting(false);
+      form.setError("root", { message: "Não foi possível conectar ao pagamento. Verifique sua internet e tente novamente." });
+      return;
+    }
 
     if (!response.ok) {
+      setSubmitting(false);
       const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
       form.setError("root", {
         message: errorPayload?.error || "Não foi possível iniciar o checkout. Revise os dados e tente novamente."
@@ -185,8 +192,9 @@ export function CheckoutForm({
       {form.formState.errors.root?.message ? <p className="text-sm text-red-600">{form.formState.errors.root.message}</p> : null}
 
       <Button className="w-full" disabled={submitting} type="submit">
-        {submitting ? "Iniciando pagamento..." : "Ir para o pagamento"}
+        {submitting ? <><Loader2 aria-hidden className="size-4 animate-spin" /> Preparando pagamento seguro...</> : "Ir para o pagamento"}
       </Button>
+      {submitting ? <p aria-live="polite" className="text-center text-sm text-stone-500">Validando pedido e redirecionando para o Mercado Pago.</p> : null}
     </form>
   );
 }

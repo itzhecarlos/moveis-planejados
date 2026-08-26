@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { PageNavigationProgress } from "@/components/layout/page-navigation-progress";
 import { siteConfig } from "@/lib/site";
 
 const cormorant = Cormorant_Garamond({
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html className={`${cormorant.variable} ${manrope.variable}`} lang="pt-BR">
       <body>
+        <PageNavigationProgress />
         <Header />
         <main>{children}</main>
         <Footer />
