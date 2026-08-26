@@ -1,13 +1,19 @@
-const metrics = [
-  { label: "Produtos ativos", value: "10" },
-  { label: "Produtos inativos", value: "0" },
-  { label: "Estoque baixo", value: "2" },
-  { label: "Pedidos pendentes", value: "4" },
-  { label: "Pedidos aprovados", value: "18" },
-  { label: "Vendas do mês", value: "R$ 22.480" }
-];
+import Link from "next/link";
 
-export default function AdminDashboardPage() {
+import { getAdminDashboardData } from "@/lib/admin-data";
+import { formatCurrency } from "@/lib/utils";
+
+export default async function AdminDashboardPage() {
+  const dashboard = await getAdminDashboardData();
+  const metrics = [
+    { label: "Produtos ativos", value: String(dashboard.activeProducts) },
+    { label: "Produtos inativos", value: String(dashboard.inactiveProducts) },
+    { label: "Estoque baixo", value: String(dashboard.lowStock) },
+    { label: "Pedidos pendentes", value: String(dashboard.pendingOrders) },
+    { label: "Pedidos aprovados", value: String(dashboard.approvedOrders) },
+    { label: "Vendas do mês", value: formatCurrency(dashboard.monthSales) }
+  ];
+
   return (
     <div className="space-y-8">
       <div>
@@ -26,29 +32,16 @@ export default function AdminDashboardPage() {
         <h2 className="font-serif text-3xl">Últimos pedidos</h2>
         <div className="mt-6 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="text-stone-500">
-              <tr>
-                <th className="pb-3">Pedido</th>
-                <th className="pb-3">Cliente</th>
-                <th className="pb-3">Pagamento</th>
-                <th className="pb-3">Status</th>
-                <th className="pb-3">Total</th>
-              </tr>
-            </thead>
+            <thead className="text-stone-500"><tr><th className="pb-3">Pedido</th><th className="pb-3">Cliente</th><th className="pb-3">Pagamento</th><th className="pb-3">Status</th><th className="pb-3">Total</th></tr></thead>
             <tbody>
-              {[
-                ["ATL-2401", "Clara Souza", "approved", "in_production", "R$ 1.699"],
-                ["ATL-2400", "Marcos Lima", "pending", "awaiting_payment", "R$ 590"],
-                ["ATL-2399", "Julia Paiva", "approved", "ready_for_shipping", "R$ 1.799"]
-              ].map((row) => (
-                <tr className="border-t border-stone-100" key={row[0]}>
-                  {row.map((value) => (
-                    <td className="py-4" key={value}>
-                      {value}
-                    </td>
-                  ))}
+              {dashboard.recentOrders.map((order) => (
+                <tr className="border-t border-stone-100" key={order.id}>
+                  <td className="py-4"><Link className="underline" href={`/admin/pedidos/${order.id}`}>{order.order_number}</Link></td>
+                  <td className="py-4">{order.customer_name}</td><td className="py-4">{order.payment_status}</td>
+                  <td className="py-4">{order.fulfillment_status}</td><td className="py-4">{formatCurrency(Number(order.total))}</td>
                 </tr>
               ))}
+              {dashboard.recentOrders.length === 0 ? <tr><td className="py-6 text-stone-500" colSpan={5}>Ainda não há pedidos.</td></tr> : null}
             </tbody>
           </table>
         </div>

@@ -1,15 +1,10 @@
-export default function AdminOrderDetailsPage({ params }: { params: { id: string } }) {
-  return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-xs uppercase tracking-[0.3em] text-stone-500">Admin / Pedidos</p>
-        <h1 className="mt-2 font-serif text-4xl">Pedido {params.id}</h1>
-      </div>
-      <div className="rounded-[1.75rem] border border-stone-200 bg-white p-6">
-        <p className="text-sm leading-7 text-stone-600">
-          Estrutura pronta para exibir cliente, endereço, itens, pagamentos, histórico e alteração de status operacional.
-        </p>
-      </div>
-    </div>
-  );
+import { notFound } from "next/navigation";
+
+import { getAdminOrder } from "@/lib/admin-data";
+import { formatCurrency } from "@/lib/utils";
+
+export default async function AdminOrderDetailsPage({ params }: { params: { id: string } }) {
+  const order = await getAdminOrder(params.id);
+  if (!order) notFound();
+  return <div className="space-y-8"><div><p className="text-xs uppercase tracking-[0.3em] text-stone-500">Admin / Pedidos</p><h1 className="mt-2 font-serif text-4xl">Pedido {order.order_number}</h1></div><div className="grid gap-4 md:grid-cols-2"><section className="rounded-[1.75rem] border border-stone-200 bg-white p-6"><h2 className="text-xl font-medium">Cliente e entrega</h2><p className="mt-4">{order.customer_name}</p><p className="text-sm text-stone-600">{order.customer_email} · {order.customer_phone}</p><p className="mt-4 text-sm text-stone-600">{order.street}, {order.number}{order.complement ? ` — ${order.complement}` : ""}<br />{order.neighborhood} · {order.city}/{order.state}<br />CEP {order.postal_code}</p></section><section className="rounded-[1.75rem] border border-stone-200 bg-white p-6"><h2 className="text-xl font-medium">Pagamento</h2><p className="mt-4 text-sm">Status: <strong>{order.payment_status}</strong></p><p className="mt-2 text-sm">Operacional: <strong>{order.fulfillment_status}</strong></p><p className="mt-2 text-sm">Método: {order.payment_method || "—"}</p><p className="mt-4 text-2xl">{formatCurrency(Number(order.total))}</p></section></div><section className="rounded-[1.75rem] border border-stone-200 bg-white p-6"><h2 className="text-xl font-medium">Itens</h2><div className="mt-4 space-y-3">{(order.order_items || []).map((item: { id: string; quantity: number; product_name: string; variation_name: string | null; total_price: number }) => <div className="flex justify-between gap-4 border-t border-stone-100 pt-3" key={item.id}><span>{item.quantity}× {item.product_name}{item.variation_name ? ` — ${item.variation_name}` : ""}</span><strong>{formatCurrency(Number(item.total_price))}</strong></div>)}</div></section></div>;
 }
