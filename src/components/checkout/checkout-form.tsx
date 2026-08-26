@@ -70,8 +70,9 @@ export function CheckoutForm({
     setSubmitting(false);
 
     if (!response.ok) {
+      const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
       form.setError("root", {
-        message: "Não foi possível iniciar o checkout. Revise os dados e tente novamente."
+        message: errorPayload?.error || "Não foi possível iniciar o checkout. Revise os dados e tente novamente."
       });
       return;
     }
