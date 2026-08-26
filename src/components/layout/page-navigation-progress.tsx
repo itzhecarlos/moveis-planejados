@@ -1,16 +1,15 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function PageNavigationProgress() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(false);
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     function onClick(event: MouseEvent) {
