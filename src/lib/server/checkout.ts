@@ -247,6 +247,10 @@ export async function createPendingOrderFromCheckout(
   const order = Array.isArray(createdOrder) ? createdOrder[0] : createdOrder;
 
   if (orderError || !order) {
+    console.error("create_checkout_order RPC failed", {
+      error: orderError,
+      hasOrder: Boolean(order),
+    });
     throw new Error("Não foi possível criar o pedido com segurança no banco de dados.");
   }
 
