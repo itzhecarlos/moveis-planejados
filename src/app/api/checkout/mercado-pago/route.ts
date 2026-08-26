@@ -41,6 +41,14 @@ export async function POST(request: Request) {
       throw new Error("O Mercado Pago não retornou um link de pagamento.");
     }
 
+    console.info("Mercado Pago preference created", {
+      preferenceId: preference.id,
+      environment: isTestAccessToken ? "test" : "production",
+      hasInitPoint: Boolean(preference.init_point),
+      hasSandboxInitPoint: Boolean(preference.sandbox_init_point),
+      checkoutHost: new URL(checkoutUrl).host
+    });
+
     return NextResponse.json({
       init_point: checkoutUrl,
       preference_id: preference.id,
