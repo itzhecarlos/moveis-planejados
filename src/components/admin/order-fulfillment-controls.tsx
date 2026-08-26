@@ -8,8 +8,7 @@ import { updateOrderFulfillmentStatus } from "@/actions/orders";
 import { Button } from "@/components/ui/button";
 
 const options = [
-  { status: "in_production", label: "Em preparo" },
-  { status: "shipped", label: "Enviado" },
+  { status: "shipped", label: "Postado" },
   { status: "in_transit", label: "A caminho" }
 ] as const;
 
@@ -17,6 +16,8 @@ export function OrderFulfillmentControls({ orderId, paymentApproved, currentStat
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const currentStep = options.findIndex((option) => option.status === currentStatus);
+  const operationClosed = ["in_transit", "delivered", "cancelled"].includes(currentStatus);
 
   function update(status: (typeof options)[number]["status"]) {
     setMessage("");
@@ -31,5 +32,5 @@ export function OrderFulfillmentControls({ orderId, paymentApproved, currentStat
     });
   }
 
-  return <div className="mt-7 border-t border-stone-100 pt-5"><p className="text-xs uppercase tracking-[0.2em] text-stone-500">Atualizar operação</p><div className="mt-3 flex flex-wrap gap-2">{options.map((option) => <Button disabled={!paymentApproved || pending || currentStatus === option.status} key={option.status} onClick={() => update(option.status)} size="sm" type="button" variant={currentStatus === option.status ? "primary" : "secondary"}>{pending ? <Loader2 aria-hidden className="size-3 animate-spin" /> : null}{option.label}</Button>)}</div>{!paymentApproved ? <p className="mt-3 text-sm text-amber-700">Disponível após a confirmação do pagamento.</p> : null}{message ? <p aria-live="polite" className="mt-3 text-sm text-stone-600">{message}</p> : null}</div>;
+  return <div className="mt-7 border-t border-stone-100 pt-5"><p className="text-xs uppercase tracking-[0.2em] text-stone-500">Atualizar operação</p><div className="mt-3 flex flex-wrap gap-2">{options.map((option, index) => <Button disabled={!paymentApproved || pending || operationClosed || currentStep >= index} key={option.status} onClick={() => update(option.status)} size="sm" type="button" variant={currentStatus === option.status ? "primary" : "secondary"}>{pending ? <Loader2 aria-hidden className="size-3 animate-spin" /> : null}{option.label}</Button>)}</div>{!paymentApproved ? <p className="mt-3 text-sm text-amber-700">Disponível após a confirmação do pagamento.</p> : null}{operationClosed ? <p className="mt-3 text-sm text-stone-500">Este pedido já avançou para o último estágio disponível.</p> : null}{message ? <p aria-live="polite" className="mt-3 text-sm text-stone-600">{message}</p> : null}</div>;
 }

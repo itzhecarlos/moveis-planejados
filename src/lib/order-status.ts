@@ -14,7 +14,7 @@ const fulfillmentStatus: Record<string, { label: string; tone: BadgeTone }> = {
   payment_confirmed: { label: "Pagamento confirmado", tone: "success" },
   in_production: { label: "Em preparo", tone: "warning" },
   ready_for_shipping: { label: "Pronto para envio", tone: "success" },
-  shipped: { label: "Enviado", tone: "success" },
+  shipped: { label: "Postado", tone: "success" },
   in_transit: { label: "A caminho", tone: "success" },
   delivered: { label: "Entregue", tone: "success" },
   cancelled: { label: "Pedido cancelado", tone: "default" }

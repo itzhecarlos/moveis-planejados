@@ -9,8 +9,19 @@ import { fulfillmentStatusSchema } from "@/validations/order";
 
 const updateOrderStatusSchema = z.object({
   orderId: z.string().uuid(),
-  status: fulfillmentStatusSchema.extract(["in_production", "shipped", "in_transit"])
+  status: fulfillmentStatusSchema.extract(["shipped", "in_transit"])
 });
+
+const fulfillmentProgress: Record<string, number> = {
+  awaiting_payment: 0,
+  payment_confirmed: 0,
+  in_production: 0,
+  ready_for_shipping: 0,
+  shipped: 1,
+  in_transit: 2,
+  delivered: 3,
+  cancelled: 3
+};
 
 export async function updateOrderFulfillmentStatus(input: unknown) {
   const { user } = await requireAdminRole();
@@ -25,6 +36,9 @@ export async function updateOrderFulfillmentStatus(input: unknown) {
     .maybeSingle();
   if (orderError || !order) throw new Error("Pedido não encontrado.");
   if (order.payment_status !== "approved") throw new Error("O status operacional só pode ser alterado após a confirmação do pagamento.");
+  if ((fulfillmentProgress[payload.status] || 0) <= (fulfillmentProgress[order.fulfillment_status] || 0)) {
+    throw new Error("Não é possível retornar o pedido para um estágio anterior.");
+  }
 
   const { error: updateError } = await supabase
     .from("orders")
