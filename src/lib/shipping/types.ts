@@ -16,6 +16,8 @@ export function calculateTotalDeliveryDays(carrierDeliveryDays?: number | null) 
 export type ShippingOption = {
   serviceId: number;
   quotedAmount: number;
+  chargedAmount: number;
+  freeShipping: boolean;
   deliveryDays: number;
   productionDays: number;
   totalDeliveryDays: number;

@@ -143,13 +143,15 @@ export function OrderSummary({
                 className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition ${option.serviceId === quote.serviceId ? "border-graphite bg-stone-50" : "border-stone-200 hover:border-stone-400"}`}
                 key={option.serviceId}
                 onClick={() => {
-                  setQuote((current) => current ? { ...current, serviceId: option.serviceId, quotedAmount: option.quotedAmount, chargedAmount: option.quotedAmount, deliveryDays: option.deliveryDays, productionDays: option.productionDays, totalDeliveryDays: option.totalDeliveryDays, serviceName: option.serviceName, carrierName: option.carrierName } : current);
+                  setQuote((current) => current ? { ...current, serviceId: option.serviceId, quotedAmount: option.quotedAmount, chargedAmount: option.chargedAmount, freeShipping: option.freeShipping, deliveryDays: option.deliveryDays, productionDays: option.productionDays, totalDeliveryDays: option.totalDeliveryDays, serviceName: option.serviceName, carrierName: option.carrierName } : current);
                   onShippingServiceChange(option.serviceId);
                 }}
                 type="button"
               >
                 <span><strong className="block font-medium text-graphite">{option.carrierName} · {option.serviceName}</strong><span className="text-xs text-stone-500">Prazo total estimado: {option.totalDeliveryDays} dias</span></span>
-                <strong>{formatCurrency(option.quotedAmount)}</strong>
+                {option.freeShipping ? (
+                  <span className="text-right"><span className="block text-xs text-stone-400 line-through">{formatCurrency(option.quotedAmount)}</span><strong className="text-emerald-700">Grátis</strong></span>
+                ) : <strong>{formatCurrency(option.chargedAmount)}</strong>}
               </button>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { normalizeBrazilState } from "@/lib/checkout/pricing";
+import { FREE_SHIPPING_STATES, normalizeBrazilState } from "@/lib/checkout/pricing";
 import { calculateMelhorEnvioShipping, parseProductDimensions, type MelhorEnvioProduct } from "@/lib/melhor-envio";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { calculateTotalDeliveryDays, type ShippingQuote } from "@/lib/shipping/types";
@@ -36,12 +36,15 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
   const options = await calculateMelhorEnvioShipping({ destinationPostalCode, products: quoteProducts });
   const selected = selectedServiceId ? options.find((option) => option.serviceId === selectedServiceId) : options[0];
   if (!selected) throw new Error("A modalidade de frete selecionada não está mais disponível. Escolha outra opção.");
+  const regionalFreeShipping = FREE_SHIPPING_STATES.includes(destinationState as (typeof FREE_SHIPPING_STATES)[number]);
   const selectedDeadline = calculateTotalDeliveryDays(selected.deliveryDays);
   const mappedOptions = options.map((option) => {
     const deadline = calculateTotalDeliveryDays(option.deliveryDays);
     return {
       serviceId: option.serviceId,
       quotedAmount: option.amount,
+      chargedAmount: regionalFreeShipping ? 0 : option.amount,
+      freeShipping: regionalFreeShipping,
       deliveryDays: deadline.carrierDays,
       productionDays: deadline.productionDays,
       totalDeliveryDays: deadline.totalDays,
@@ -54,8 +57,8 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     postalCode: destinationPostalCode,
     destinationState,
     quotedAmount: selected.amount,
-    chargedAmount: selected.amount,
-    freeShipping: selected.amount === 0,
+    chargedAmount: regionalFreeShipping ? 0 : selected.amount,
+    freeShipping: regionalFreeShipping,
     deliveryDays: selectedDeadline.carrierDays,
     productionDays: selectedDeadline.productionDays,
     totalDeliveryDays: selectedDeadline.totalDays,
