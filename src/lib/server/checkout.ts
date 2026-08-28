@@ -184,7 +184,7 @@ export async function createPendingOrderFromCheckout(
     rules: {
       pixDiscountRate: PIX_DISCOUNT_RATE,
       freeShippingStates: ["PR", "SC", "RS"],
-      shippingProvider: "fixed-rule",
+      shippingProvider: "melhor-envio",
       maximumDeliveryDays: 15
     },
     shippingQuote,
