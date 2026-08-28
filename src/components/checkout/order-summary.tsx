@@ -137,7 +137,10 @@ export function OrderSummary({
 
         {quote?.options.length ? (
           <div className="space-y-2 border-y border-stone-100 py-3">
-            <p className="text-stone-500">Escolha a modalidade de entrega</p>
+            <p className="text-stone-500">
+              {quote.freeShipping ? "Escolha entre as melhores opções de custo-benefício" : "Escolha a modalidade de entrega"}
+            </p>
+            {quote.freeShipping ? <p className="text-xs text-stone-500">Exibimos até 3 opções considerando o custo real e o prazo da transportadora.</p> : null}
             {quote.options.map((option) => (
               <button
                 className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition ${option.serviceId === quote.serviceId ? "border-graphite bg-stone-50" : "border-stone-200 hover:border-stone-400"}`}

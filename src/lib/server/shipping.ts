@@ -1,7 +1,7 @@
 import "server-only";
 
 import { FREE_SHIPPING_STATES, normalizeBrazilState } from "@/lib/checkout/pricing";
-import { calculateMelhorEnvioShipping, parseProductDimensions, type MelhorEnvioProduct } from "@/lib/melhor-envio";
+import { calculateMelhorEnvioShipping, parseProductDimensions, type MelhorEnvioProduct, type MelhorEnvioQuote } from "@/lib/melhor-envio";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { calculateTotalDeliveryDays, type ShippingQuote } from "@/lib/shipping/types";
 import type { CartItem } from "@/types";
@@ -34,11 +34,12 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     return { id: product.id, ...dimensions, weight: product.weight, insuranceValue: product.insuranceValue, quantity: product.quantity };
   });
   const options = await calculateMelhorEnvioShipping({ destinationPostalCode, products: quoteProducts });
-  const selected = selectedServiceId ? options.find((option) => option.serviceId === selectedServiceId) : options[0];
-  if (!selected) throw new Error("A modalidade de frete selecionada não está mais disponível. Escolha outra opção.");
   const regionalFreeShipping = FREE_SHIPPING_STATES.includes(destinationState as (typeof FREE_SHIPPING_STATES)[number]);
+  const eligibleOptions = regionalFreeShipping ? selectBestCostBenefitOptions(options, 3) : options;
+  const selected = selectedServiceId ? eligibleOptions.find((option) => option.serviceId === selectedServiceId) : eligibleOptions[0];
+  if (!selected) throw new Error("A modalidade de frete selecionada não está mais disponível. Escolha outra opção.");
   const selectedDeadline = calculateTotalDeliveryDays(selected.deliveryDays);
-  const mappedOptions = options.map((option) => {
+  const mappedOptions = eligibleOptions.map((option) => {
     const deadline = calculateTotalDeliveryDays(option.deliveryDays);
     return {
       serviceId: option.serviceId,
@@ -68,4 +69,26 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     serviceId: selected.serviceId,
     options: mappedOptions
   };
+}
+
+function selectBestCostBenefitOptions(options: MelhorEnvioQuote[], limit: number) {
+  if (options.length <= limit) return options;
+
+  const amounts = options.map((option) => option.amount);
+  const deliveryDays = options.map((option) => calculateTotalDeliveryDays(option.deliveryDays).carrierDays);
+  const minAmount = Math.min(...amounts);
+  const maxAmount = Math.max(...amounts);
+  const minDays = Math.min(...deliveryDays);
+  const maxDays = Math.max(...deliveryDays);
+
+  return options
+    .map((option) => {
+      const days = calculateTotalDeliveryDays(option.deliveryDays).carrierDays;
+      const normalizedCost = maxAmount === minAmount ? 0 : (option.amount - minAmount) / (maxAmount - minAmount);
+      const normalizedTime = maxDays === minDays ? 0 : (days - minDays) / (maxDays - minDays);
+      return { option, score: normalizedCost * 0.7 + normalizedTime * 0.3 };
+    })
+    .sort((a, b) => a.score - b.score || a.option.amount - b.option.amount || a.option.deliveryDays - b.option.deliveryDays)
+    .slice(0, limit)
+    .map(({ option }) => option);
 }
