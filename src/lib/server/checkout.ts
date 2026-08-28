@@ -162,6 +162,7 @@ export async function createPendingOrderFromCheckout(
   const shippingQuote = await quoteShipping({
     postalCode: payload.customer.postalCode,
     state: payload.customer.state,
+    selectedServiceId: payload.shippingServiceId,
     products: canonicalItems.map((item) => {
       const physicalQuantity = item.quantity * (item.purchaseType === "pair" ? 2 : 1);
 

@@ -17,6 +17,7 @@ export function CheckoutShell({ initialCustomer }: CheckoutShellProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [shippingState, setShippingState] = useState(initialCustomer?.state || "");
   const [shippingPostalCode, setShippingPostalCode] = useState(initialCustomer?.postalCode || "");
+  const [shippingServiceId, setShippingServiceId] = useState<number | null>(null);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -28,12 +29,14 @@ export function CheckoutShell({ initialCustomer }: CheckoutShellProps) {
         setShippingState={setShippingState}
         shippingPostalCode={shippingPostalCode}
         shippingState={shippingState}
+        shippingServiceId={shippingServiceId}
       />
       <OrderSummary
         items={items}
         paymentMethod={paymentMethod}
         shippingPostalCode={shippingPostalCode}
         shippingState={shippingState}
+        onShippingServiceChange={setShippingServiceId}
       />
     </div>
   );

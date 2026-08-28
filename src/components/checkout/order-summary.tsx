@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { PIX_DISCOUNT_RATE, normalizeBrazilState } from "@/lib/checkout/pricing";
 import { getProducts } from "@/lib/catalog";
-import { MAX_SHIPPING_DELIVERY_DAYS, type ShippingQuote } from "@/lib/shipping/types";
+import { FALLBACK_CARRIER_DELIVERY_DAYS, PRODUCTION_TIME_DAYS, type ShippingQuote } from "@/lib/shipping/types";
 import { formatCurrency } from "@/lib/utils";
 import type { CartItem, PaymentMethod } from "@/types";
 
@@ -13,13 +13,15 @@ type OrderSummaryProps = {
   paymentMethod: PaymentMethod;
   shippingPostalCode: string;
   shippingState: string;
+  onShippingServiceChange: (serviceId: number | null) => void;
 };
 
 export function OrderSummary({
   items,
   paymentMethod,
   shippingPostalCode,
-  shippingState
+  shippingState,
+  onShippingServiceChange
 }: OrderSummaryProps) {
   const [quote, setQuote] = useState<ShippingQuote | null>(null);
   const [quoteError, setQuoteError] = useState("");
@@ -51,6 +53,7 @@ export function OrderSummary({
   useEffect(() => {
     if (postalCodeDigits.length !== 8 || normalizedState.length !== 2 || items.length === 0) {
       setQuote(null);
+      onShippingServiceChange(null);
       setQuoteError("");
       setIsQuoting(false);
       return;
@@ -80,9 +83,11 @@ export function OrderSummary({
         }
 
         setQuote(data);
+        onShippingServiceChange(data.serviceId);
       } catch (error) {
         if (controller.signal.aborted) return;
         setQuote(null);
+        onShippingServiceChange(null);
         setQuoteError(error instanceof Error ? error.message : "Não foi possível calcular o frete.");
       } finally {
         if (!controller.signal.aborted) {
@@ -95,7 +100,7 @@ export function OrderSummary({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [items, normalizedState, postalCodeDigits]);
+  }, [items, normalizedState, onShippingServiceChange, postalCodeDigits]);
 
   return (
     <aside className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
@@ -130,6 +135,26 @@ export function OrderSummary({
           </div>
         ) : null}
 
+        {quote?.options.length ? (
+          <div className="space-y-2 border-y border-stone-100 py-3">
+            <p className="text-stone-500">Escolha a modalidade de entrega</p>
+            {quote.options.map((option) => (
+              <button
+                className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition ${option.serviceId === quote.serviceId ? "border-graphite bg-stone-50" : "border-stone-200 hover:border-stone-400"}`}
+                key={option.serviceId}
+                onClick={() => {
+                  setQuote((current) => current ? { ...current, serviceId: option.serviceId, quotedAmount: option.quotedAmount, chargedAmount: option.quotedAmount, deliveryDays: option.deliveryDays, productionDays: option.productionDays, totalDeliveryDays: option.totalDeliveryDays, serviceName: option.serviceName, carrierName: option.carrierName } : current);
+                  onShippingServiceChange(option.serviceId);
+                }}
+                type="button"
+              >
+                <span><strong className="block font-medium text-graphite">{option.carrierName} · {option.serviceName}</strong><span className="text-xs text-stone-500">Prazo total estimado: {option.totalDeliveryDays} dias</span></span>
+                <strong>{formatCurrency(option.quotedAmount)}</strong>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         <div className="flex items-start justify-between gap-4">
           <dt className="text-stone-500">Frete estimado</dt>
           <dd className="text-right">
@@ -156,12 +181,11 @@ export function OrderSummary({
 
         {quote ? (
           <p className="text-xs text-stone-500">
-            {quote.carrierName} · {quote.serviceName}. Entrega estimada em {quote.deliveryDays} dias úteis, com prazo
-            máximo de {MAX_SHIPPING_DELIVERY_DAYS} dias úteis.
+            Prazo total estimado de {quote.totalDeliveryDays} dias: {quote.productionDays} dias corridos de produção + {quote.deliveryDays} dias úteis de transporte por {quote.carrierName} · {quote.serviceName}.
           </p>
         ) : (
           <p className="text-xs text-stone-500">
-            Entrega em até {MAX_SHIPPING_DELIVERY_DAYS} dias corridos.
+            O prazo será calculado somando {PRODUCTION_TIME_DAYS} dias corridos de produção ao prazo da transportadora. Se ela não informar um prazo, usamos {FALLBACK_CARRIER_DELIVERY_DAYS} dias como estimativa de transporte.
           </p>
         )}
 

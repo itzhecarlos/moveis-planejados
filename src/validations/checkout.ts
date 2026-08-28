@@ -10,6 +10,7 @@ export const checkoutItemSchema = z.object({
 export const checkoutSchema = z.object({
   items: z.array(checkoutItemSchema).min(1).max(30),
   paymentMethod: z.enum(["pix", "card"]),
+  shippingServiceId: z.number().int().positive(),
   customer: z.object({
     fullName: z.string().trim().min(3).max(120),
     email: z.string().trim().email().max(254),

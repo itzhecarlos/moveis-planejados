@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -21,6 +21,7 @@ type CheckoutFormProps = {
   setShippingPostalCode: (value: string) => void;
   shippingState: string;
   setShippingState: (value: string) => void;
+  shippingServiceId: number | null;
 };
 
 export function CheckoutForm({
@@ -30,7 +31,8 @@ export function CheckoutForm({
   shippingPostalCode,
   setShippingPostalCode,
   shippingState,
-  setShippingState
+  setShippingState,
+  shippingServiceId
 }: CheckoutFormProps) {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
@@ -42,6 +44,7 @@ export function CheckoutForm({
     defaultValues: {
       items,
       paymentMethod,
+      shippingServiceId: shippingServiceId || undefined,
       customer: initialCustomer || {
         fullName: "",
         email: "",
@@ -60,6 +63,10 @@ export function CheckoutForm({
     }
   });
 
+  useEffect(() => {
+    form.setValue("shippingServiceId", shippingServiceId ?? (undefined as never), { shouldValidate: true });
+  }, [form, shippingServiceId]);
+
   async function onSubmit(values: CheckoutInput) {
     setSubmitting(true);
     let response: Response;
@@ -67,7 +74,7 @@ export function CheckoutForm({
       response = await fetch("/api/checkout/mercado-pago", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, items, paymentMethod })
+        body: JSON.stringify({ ...values, items, paymentMethod, shippingServiceId })
       });
     } catch {
       setSubmitting(false);
