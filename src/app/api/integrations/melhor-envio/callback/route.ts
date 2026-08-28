@@ -19,6 +19,10 @@ export async function GET(request: Request) {
     return response;
   } catch (error) {
     console.error("Melhor Envio authorization callback failed", error);
-    return NextResponse.json({ error: "Não foi possível concluir a autorização do Melhor Envio." }, { status: 500 });
+    const detail = error instanceof Error ? error.message : "Falha desconhecida.";
+    return NextResponse.json(
+      { error: "Não foi possível concluir a autorização do Melhor Envio.", detail },
+      { status: 500 }
+    );
   }
 }

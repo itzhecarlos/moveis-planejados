@@ -67,9 +67,9 @@ async function requestToken(
     cache: "no-store",
     signal: AbortSignal.timeout(10_000)
   });
-  const body = (await response.json().catch(() => null)) as TokenResponse | null;
+  const body = (await response.json().catch(() => null)) as (TokenResponse & { message?: string }) | null;
   if (!response.ok || !body?.access_token || !body.refresh_token || !body.expires_in) {
-    console.error("Melhor Envio OAuth token request failed", { status: response.status });
+    console.error("Melhor Envio OAuth token request failed", { status: response.status, message: body?.message });
     throw new Error("Não foi possível autorizar o Melhor Envio.");
   }
   return body;
