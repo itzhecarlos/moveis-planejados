@@ -13,6 +13,7 @@ type OrderSummaryProps = {
   paymentMethod: PaymentMethod;
   shippingPostalCode: string;
   shippingState: string;
+  shippingCity: string;
   onShippingServiceChange: (serviceId: number | null) => void;
 };
 
@@ -21,6 +22,7 @@ export function OrderSummary({
   paymentMethod,
   shippingPostalCode,
   shippingState,
+  shippingCity,
   onShippingServiceChange
 }: OrderSummaryProps) {
   const [quote, setQuote] = useState<ShippingQuote | null>(null);
@@ -51,7 +53,7 @@ export function OrderSummary({
   const total = subtotal - pixDiscount + shipping;
 
   useEffect(() => {
-    if (postalCodeDigits.length !== 8 || normalizedState.length !== 2 || items.length === 0) {
+    if (postalCodeDigits.length !== 8 || normalizedState.length !== 2 || shippingCity.trim().length < 2 || items.length === 0) {
       setQuote(null);
       onShippingServiceChange(null);
       setQuoteError("");
@@ -72,7 +74,8 @@ export function OrderSummary({
           body: JSON.stringify({
             items,
             postalCode: postalCodeDigits,
-            state: normalizedState
+            state: normalizedState,
+            city: shippingCity
           }),
           signal: controller.signal
         });
@@ -100,7 +103,7 @@ export function OrderSummary({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [items, normalizedState, onShippingServiceChange, postalCodeDigits]);
+  }, [items, normalizedState, onShippingServiceChange, postalCodeDigits, shippingCity]);
 
   return (
     <aside className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-soft">
@@ -151,8 +154,10 @@ export function OrderSummary({
                 }}
                 type="button"
               >
-                <span><strong className="block font-medium text-graphite">{option.carrierName} · {option.serviceName}</strong><span className="text-xs text-stone-500">Prazo total estimado: {option.totalDeliveryDays} dias</span></span>
-                {option.freeShipping ? (
+                <span><strong className="block font-medium text-graphite">{option.carrierName} · {option.serviceName}</strong><span className="text-xs text-stone-500">{option.ownDelivery ? "Entrega agendada após a produção" : `Prazo total estimado: ${option.totalDeliveryDays} dias`}</span></span>
+                {option.ownDelivery ? (
+                  <strong className="text-emerald-700">Grátis</strong>
+                ) : option.freeShipping ? (
                   <span className="text-right"><span className="block text-xs text-stone-400 line-through">{formatCurrency(option.quotedAmount)}</span><strong className="text-emerald-700">Grátis</strong></span>
                 ) : <strong>{formatCurrency(option.chargedAmount)}</strong>}
               </button>
@@ -163,7 +168,9 @@ export function OrderSummary({
         <div className="flex items-start justify-between gap-4">
           <dt className="text-stone-500">Frete estimado</dt>
           <dd className="text-right">
-            {qualifiesForRegionalFreeShipping ? (
+            {quote?.ownDelivery ? (
+              <span className="font-semibold text-emerald-700">Grátis</span>
+            ) : qualifiesForRegionalFreeShipping ? (
               <span className="inline-flex items-center gap-2">
                 <span className="text-stone-400 line-through">{formatCurrency(quote.quotedAmount)}</span>
                 <span className="font-semibold text-emerald-700">Grátis</span>
@@ -184,7 +191,9 @@ export function OrderSummary({
           </p>
         ) : null}
 
-        {quote ? (
+        {quote?.ownDelivery ? (
+          <p className="text-xs text-stone-500">Entrega própria em Curitiba, realizada pela Atlas Móveis e agendada após os {quote.productionDays} dias corridos de produção.</p>
+        ) : quote ? (
           <p className="text-xs text-stone-500">
             Prazo total estimado de {quote.totalDeliveryDays} dias: {quote.productionDays} dias corridos de produção + {quote.deliveryDays} dias úteis de transporte por {quote.carrierName} · {quote.serviceName}.
           </p>
@@ -195,7 +204,7 @@ export function OrderSummary({
         )}
 
         {qualifiesForRegionalFreeShipping ? (
-          <p className="text-xs font-semibold text-emerald-700">Frete grátis aplicado para PR, SC e RS.</p>
+          <p className="text-xs font-semibold text-emerald-700">{quote?.ownDelivery ? "Entrega própria grátis para Curitiba." : "Frete grátis aplicado para PR, SC e RS."}</p>
         ) : null}
 
         {quoteError ? <p className="text-xs font-medium text-red-600">{quoteError}</p> : null}

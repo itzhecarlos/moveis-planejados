@@ -18,6 +18,7 @@ export type ShippingOption = {
   quotedAmount: number;
   chargedAmount: number;
   freeShipping: boolean;
+  ownDelivery: boolean;
   deliveryDays: number;
   productionDays: number;
   totalDeliveryDays: number;
@@ -31,12 +32,13 @@ export type ShippingQuote = {
   quotedAmount: number;
   chargedAmount: number;
   freeShipping: boolean;
+  ownDelivery: boolean;
   deliveryDays: number;
   productionDays: number;
   totalDeliveryDays: number;
   serviceName: string;
   carrierName: string;
-  source: "melhor_envio";
+  source: "melhor_envio" | "own_delivery";
   serviceId: number;
   options: ShippingOption[];
 };

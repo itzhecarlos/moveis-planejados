@@ -17,6 +17,7 @@ export function CheckoutShell({ initialCustomer }: CheckoutShellProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [shippingState, setShippingState] = useState(initialCustomer?.state || "");
   const [shippingPostalCode, setShippingPostalCode] = useState(initialCustomer?.postalCode || "");
+  const [shippingCity, setShippingCity] = useState(initialCustomer?.city || "");
   const [shippingServiceId, setShippingServiceId] = useState<number | null>(null);
 
   return (
@@ -27,6 +28,7 @@ export function CheckoutShell({ initialCustomer }: CheckoutShellProps) {
         setPaymentMethod={setPaymentMethod}
         setShippingPostalCode={setShippingPostalCode}
         setShippingState={setShippingState}
+        setShippingCity={setShippingCity}
         shippingPostalCode={shippingPostalCode}
         shippingState={shippingState}
         shippingServiceId={shippingServiceId}
@@ -36,6 +38,7 @@ export function CheckoutShell({ initialCustomer }: CheckoutShellProps) {
         paymentMethod={paymentMethod}
         shippingPostalCode={shippingPostalCode}
         shippingState={shippingState}
+        shippingCity={shippingCity}
         onShippingServiceChange={setShippingServiceId}
       />
     </div>

@@ -8,7 +8,8 @@ import { checkoutItemSchema } from "@/validations/checkout";
 const shippingQuoteSchema = z.object({
   items: z.array(checkoutItemSchema).min(1),
   postalCode: z.string().transform((value) => value.replace(/\D/g, "")).pipe(z.string().length(8)),
-  state: z.string().trim().length(2)
+  state: z.string().trim().length(2),
+  city: z.string().trim().min(2).max(100)
 });
 
 export async function POST(request: Request) {
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
       );
     }
     const payload = shippingQuoteSchema.parse(await request.json());
-    const quote = await quoteShippingForCart(payload.items, payload.postalCode, payload.state);
+    const quote = await quoteShippingForCart(payload.items, payload.postalCode, payload.state, payload.city);
 
     return NextResponse.json(quote);
   } catch (error) {

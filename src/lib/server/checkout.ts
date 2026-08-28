@@ -162,6 +162,7 @@ export async function createPendingOrderFromCheckout(
   const shippingQuote = await quoteShipping({
     postalCode: payload.customer.postalCode,
     state: payload.customer.state,
+    city: payload.customer.city,
     selectedServiceId: payload.shippingServiceId,
     products: canonicalItems.map((item) => {
       const physicalQuantity = item.quantity * (item.purchaseType === "pair" ? 2 : 1);
@@ -185,8 +186,10 @@ export async function createPendingOrderFromCheckout(
     rules: {
       pixDiscountRate: PIX_DISCOUNT_RATE,
       freeShippingStates: ["PR", "SC", "RS"],
-      shippingProvider: "melhor-envio",
-      maximumDeliveryDays: 15
+      ownDeliveryCities: ["Curitiba/PR"],
+      shippingProvider: shippingQuote.source,
+      productionTimeDays: 5,
+      carrierDeliveryFallbackDays: 15
     },
     shippingQuote,
     items: canonicalItems.map((item) => ({

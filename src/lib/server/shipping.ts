@@ -7,8 +7,9 @@ import { calculateTotalDeliveryDays, type ShippingQuote } from "@/lib/shipping/t
 import type { CartItem } from "@/types";
 
 type ProductForQuote = { id: string; dimensions: string | null; weight: number | null; insuranceValue: number; quantity: number };
+const OWN_DELIVERY_SERVICE_ID = 900_000_001;
 
-export async function quoteShippingForCart(items: CartItem[], postalCode: string, state: string, selectedServiceId?: number) {
+export async function quoteShippingForCart(items: CartItem[], postalCode: string, state: string, city: string, selectedServiceId?: number) {
   const supabase = createSupabaseAdminClient();
   if (!supabase) throw new Error("O Supabase não está configurado para calcular o frete.");
   const ids = [...new Set(items.map((item) => item.productId))];
@@ -21,10 +22,10 @@ export async function quoteShippingForCart(items: CartItem[], postalCode: string
     const quantity = item.quantity * (item.purchaseType === "pair" ? 2 : 1);
     return { id: `${product.id}-${item.purchaseType}`, dimensions: product.dimensions, weight: Number(product.weight), insuranceValue: Number(price) / (item.purchaseType === "pair" ? 2 : 1), quantity };
   });
-  return quoteShipping({ postalCode, state, products, selectedServiceId });
+  return quoteShipping({ postalCode, state, city, products, selectedServiceId });
 }
 
-export async function quoteShipping({ postalCode, state, products, selectedServiceId }: { postalCode: string; state: string; products: ProductForQuote[]; selectedServiceId?: number }): Promise<ShippingQuote> {
+export async function quoteShipping({ postalCode, state, city, products, selectedServiceId }: { postalCode: string; state: string; city: string; products: ProductForQuote[]; selectedServiceId?: number }): Promise<ShippingQuote> {
   const destinationPostalCode = postalCode.replace(/\D/g, "");
   const destinationState = normalizeBrazilState(state);
   if (destinationPostalCode.length !== 8 || destinationState.length !== 2 || !products.length) throw new Error("Informe endereço e produtos válidos para calcular o frete.");
@@ -33,6 +34,30 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     if (!dimensions || !product.weight || product.weight <= 0) throw new Error("Todos os produtos precisam de dimensões no formato L 50 x A 60 x P 45 cm e peso para calcular o frete.");
     return { id: product.id, ...dimensions, weight: product.weight, insuranceValue: product.insuranceValue, quantity: product.quantity };
   });
+  if (isCuritibaOwnDelivery(city, destinationState)) {
+    if (selectedServiceId && selectedServiceId !== OWN_DELIVERY_SERVICE_ID) {
+      throw new Error("A modalidade de entrega selecionada não está disponível para Curitiba.");
+    }
+    const ownOption = {
+      serviceId: OWN_DELIVERY_SERVICE_ID,
+      quotedAmount: 0,
+      chargedAmount: 0,
+      freeShipping: true,
+      ownDelivery: true,
+      deliveryDays: 0,
+      productionDays: 5,
+      totalDeliveryDays: 5,
+      serviceName: "Entrega própria",
+      carrierName: "Atlas Móveis"
+    };
+    return {
+      postalCode: destinationPostalCode,
+      destinationState,
+      ...ownOption,
+      source: "own_delivery",
+      options: [ownOption]
+    };
+  }
   const options = await calculateMelhorEnvioShipping({ destinationPostalCode, products: quoteProducts });
   const regionalFreeShipping = FREE_SHIPPING_STATES.includes(destinationState as (typeof FREE_SHIPPING_STATES)[number]);
   const eligibleOptions = regionalFreeShipping ? selectBestCostBenefitOptions(options, 3) : options;
@@ -46,6 +71,7 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
       quotedAmount: option.amount,
       chargedAmount: regionalFreeShipping ? 0 : option.amount,
       freeShipping: regionalFreeShipping,
+      ownDelivery: false,
       deliveryDays: deadline.carrierDays,
       productionDays: deadline.productionDays,
       totalDeliveryDays: deadline.totalDays,
@@ -60,6 +86,7 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     quotedAmount: selected.amount,
     chargedAmount: regionalFreeShipping ? 0 : selected.amount,
     freeShipping: regionalFreeShipping,
+    ownDelivery: false,
     deliveryDays: selectedDeadline.carrierDays,
     productionDays: selectedDeadline.productionDays,
     totalDeliveryDays: selectedDeadline.totalDays,
@@ -69,6 +96,11 @@ export async function quoteShipping({ postalCode, state, products, selectedServi
     serviceId: selected.serviceId,
     options: mappedOptions
   };
+}
+
+function isCuritibaOwnDelivery(city: string, state: string) {
+  const normalizedCity = city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
+  return state === "PR" && normalizedCity === "CURITIBA";
 }
 
 function selectBestCostBenefitOptions(options: MelhorEnvioQuote[], limit: number) {

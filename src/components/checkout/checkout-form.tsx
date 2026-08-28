@@ -21,6 +21,7 @@ type CheckoutFormProps = {
   setShippingPostalCode: (value: string) => void;
   shippingState: string;
   setShippingState: (value: string) => void;
+  setShippingCity: (value: string) => void;
   shippingServiceId: number | null;
 };
 
@@ -32,6 +33,7 @@ export function CheckoutForm({
   setShippingPostalCode,
   shippingState,
   setShippingState,
+  setShippingCity,
   shippingServiceId
 }: CheckoutFormProps) {
   const router = useRouter();
@@ -175,7 +177,12 @@ export function CheckoutForm({
         <Input placeholder="Número" {...fields("customer.number")} />
         <Input placeholder="Complemento" {...fields("customer.complement")} />
         <Input placeholder="Bairro" {...fields("customer.neighborhood")} />
-        <Input placeholder="Cidade" {...fields("customer.city")} />
+        <Input
+          placeholder="Cidade"
+          {...fields("customer.city", {
+            onChange: (event) => setShippingCity(String(event.target.value || ""))
+          })}
+        />
         <Input
           placeholder="UF"
           maxLength={2}
