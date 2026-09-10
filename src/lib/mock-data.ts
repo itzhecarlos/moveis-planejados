@@ -52,7 +52,8 @@ export const products: Product[] = [
     name: "Firenze - Preto",
     sku: "ATM-FIR-PTO",
     categorySlug: "criados-mudos",
-    shortDescription: "Criado-mudo com presença marcante, acabamento escuro e desenho limpo.",
+    shortDescription:
+      "Criado-mudo preto em MDF premium, com 2 gavetas e design contemporâneo. Um móvel elegante e funcional para quartos modernos e sofisticados.",
     description:
       "O Firenze - Preto foi pensado para quartos contemporâneos que pedem contraste, elegância e linhas bem resolvidas. Seu volume compacto organiza o ambiente com personalidade discreta.",
     unitPrice: 899.99,
@@ -61,7 +62,7 @@ export const products: Product[] = [
     weight: 22,
     materials: "MDF premium com acabamento fosco e ferragens selecionadas.",
     warranty: "1 ano de garantia contra defeitos de fabricação.",
-    productionTime: "10 a 18 dias úteis",
+    productionTime: "5 dias corridos",
     stockQuantity: 6,
     trackStock: true,
     featured: true,
@@ -84,7 +85,8 @@ export const products: Product[] = [
     name: "Siena - Freijó",
     sku: "ATM-SIE-FRE",
     categorySlug: "criados-mudos",
-    shortDescription: "Modelo amadeirado com atmosfera acolhedora e leitura editorial.",
+    shortDescription:
+      "Criado-mudo freijó em MDF premium, com 2 gavetas e design contemporâneo. Um móvel elegante e funcional para quartos modernos e sofisticados.",
     description:
       "O Siena - Freijó valoriza quartos com tons quentes e materiais naturais. O acabamento amadeirado reforça a sensação de aconchego sem abrir mão de um desenho minimalista.",
     unitPrice: 899.99,
@@ -93,7 +95,7 @@ export const products: Product[] = [
     weight: 22,
     materials: "MDF de alta densidade com padrão freijó e ferragens premium.",
     warranty: "1 ano de garantia contra defeitos de fabricação.",
-    productionTime: "10 a 18 dias úteis",
+    productionTime: "5 dias corridos",
     stockQuantity: 7,
     trackStock: true,
     featured: true,
@@ -116,7 +118,8 @@ export const products: Product[] = [
     name: "Oslo - Off White",
     sku: "ATM-OSL-OWH",
     categorySlug: "criados-mudos",
-    shortDescription: "Volume sereno e acabamento claro para quartos de atmosfera leve.",
+    shortDescription:
+      "Criado-mudo off white em MDF premium, com 2 gavetas e design contemporâneo. Um móvel elegante e funcional para quartos modernos e sofisticados.",
     description:
       "O Oslo - Off White combina proporções suaves e materialidade clara, criando uma peça elegante para compor o quarto com luminosidade e discrição.",
     unitPrice: 899.99,
@@ -125,7 +128,7 @@ export const products: Product[] = [
     weight: 21,
     materials: "MDF com acabamento off white e ferragens selecionadas.",
     warranty: "1 ano de garantia contra defeitos de fabricação.",
-    productionTime: "10 a 18 dias úteis",
+    productionTime: "5 dias corridos",
     stockQuantity: 8,
     trackStock: true,
     featured: true,
@@ -148,7 +151,8 @@ export const products: Product[] = [
     name: "Aurora 02",
     sku: "ATM-AUR-02",
     categorySlug: "criados-mudos",
-    shortDescription: "Presença equilibrada e acabamento sofisticado.",
+    shortDescription:
+      "Criado-mudo areia em MDF premium, com 2 gavetas e design contemporâneo. Um móvel elegante e funcional para quartos modernos e sofisticados.",
     description:
       "A Aurora 02 combina proporções equilibradas, elegância limpa e praticidade para o uso diário ao lado da cama.",
     unitPrice: 899.99,
@@ -157,7 +161,7 @@ export const products: Product[] = [
     weight: 24,
     materials: "MDF premium com pintura fosca e ferragens de alto padrão.",
     warranty: "1 ano de garantia contra defeitos de fabricação.",
-    productionTime: "10 a 18 dias úteis",
+    productionTime: "5 dias corridos",
     stockQuantity: 9,
     trackStock: true,
     featured: true,
@@ -180,7 +184,8 @@ export const products: Product[] = [
     name: "Aurora 01",
     sku: "ATM-AUR-01",
     categorySlug: "criados-mudos",
-    shortDescription: "Criado-mudo de linhas retas com dois gavetões amplos e elegantes.",
+    shortDescription:
+      "Criado-mudo fendi em MDF premium, com 2 gavetas e design contemporâneo. Um móvel elegante e funcional para quartos modernos e sofisticados.",
     description:
       "A Aurora 01 traduz a linguagem essencial da Atlas Móveis em um desenho equilibrado, com acabamento neutro e visual que conversa com quartos contemporâneos.",
     unitPrice: 899.99,
@@ -189,7 +194,7 @@ export const products: Product[] = [
     weight: 21,
     materials: "MDF de alta densidade com acabamento fosco e ferragens selecionadas.",
     warranty: "1 ano de garantia contra defeitos de fabricação.",
-    productionTime: "10 a 18 dias úteis",
+    productionTime: "5 dias corridos",
     stockQuantity: 10,
     trackStock: true,
     featured: true,

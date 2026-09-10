@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { AddToCartButton } from "@/components/products/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PRODUCTION_TIME_DAYS } from "@/lib/shipping/types";
 import { formatCurrency, formatInstallment } from "@/lib/utils";
 import { siteConfig } from "@/lib/site";
 import type { Product, PurchaseType } from "@/types";
@@ -128,8 +129,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             <dd className="mt-2">{product.materials}</dd>
           </div>
           <div>
-            <dt className="uppercase tracking-[0.22em] text-stone-500">Prazo</dt>
-            <dd className="mt-2">{product.productionTime}</dd>
+            <dt className="uppercase tracking-[0.22em] text-stone-500">Prazo de produção</dt>
+            <dd className="mt-2">{PRODUCTION_TIME_DAYS} dias corridos</dd>
+            <dd className="mt-1 text-xs leading-5 text-stone-500">
+              O prazo de transporte é calculado pelo CEP no checkout.
+            </dd>
           </div>
           <div>
             <dt className="uppercase tracking-[0.22em] text-stone-500">Garantia</dt>

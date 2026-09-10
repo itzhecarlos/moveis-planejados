@@ -7,6 +7,7 @@ import {
   roundCurrency
 } from "@/lib/checkout/pricing";
 import { quoteShipping } from "@/lib/server/shipping";
+import { PRODUCTION_TIME_DAYS } from "@/lib/shipping/types";
 import type { CheckoutInput } from "@/validations/checkout";
 
 type ProductRow = {
@@ -188,7 +189,7 @@ export async function createPendingOrderFromCheckout(
       freeShippingStates: ["PR", "SC", "RS"],
       ownDeliveryCities: ["Curitiba/PR"],
       shippingProvider: shippingQuote.source,
-      productionTimeDays: 5,
+      productionTimeDays: PRODUCTION_TIME_DAYS,
       carrierDeliveryFallbackDays: 15
     },
     shippingQuote,
