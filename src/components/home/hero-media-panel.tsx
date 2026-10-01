@@ -13,6 +13,7 @@ type HeroMediaPanelProps = {
   onChange: (nextIndex: number) => void;
   products: Product[];
   productTabsRef: RefObject<HTMLDivElement>;
+  mediaClassName?: string;
 };
 
 export function HeroMediaPanel({
@@ -20,10 +21,11 @@ export function HeroMediaPanel({
   index,
   onChange,
   products,
-  productTabsRef
+  productTabsRef,
+  mediaClassName
 }: HeroMediaPanelProps) {
   return (
-    <div className="relative h-[360px] overflow-hidden bg-[#d9c8b9] sm:h-[540px] lg:h-full">
+    <div className={cn("relative h-[360px] overflow-hidden bg-[#d9c8b9] sm:h-[540px] lg:h-full", mediaClassName)}>
       {products.map((product, productIndex) => (
         <Image
           alt={product.images[0]?.alt || product.name}

@@ -1,8 +1,11 @@
 import { AboutBrand } from "@/components/home/about-brand";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { getProductsByCategory } from "@/lib/catalog";
 
 export default function AboutPage() {
+  const products = getProductsByCategory("criados-mudos");
+
   return (
     <section className="section-space">
       <div className="container-shell space-y-10">
@@ -13,7 +16,7 @@ export default function AboutPage() {
           title="Uma marca brasileira com olhar editorial para o morar"
         />
       </div>
-      <AboutBrand />
+      <AboutBrand products={products} />
     </section>
   );
 }
