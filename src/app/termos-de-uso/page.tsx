@@ -1,16 +1,23 @@
-import { Breadcrumb } from "@/components/layout/breadcrumb";
-import { SectionHeading } from "@/components/ui/section-heading";
+import type { Metadata } from "next";
+
+import { LegalPage } from "@/components/legal/legal-page";
+
+export const metadata: Metadata = { title: "Termos de uso", description: "Condições de navegação, cadastro, compra, pagamento, entrega e atendimento da Atlas Móveis." };
 
 export default function TermsPage() {
-  return (
-    <section className="section-space">
-      <div className="container-shell space-y-8">
-        <Breadcrumb items={[{ href: "/", label: "Início" }, { label: "Termos de uso" }]} />
-        <SectionHeading
-          description="Ao navegar pelo site ou concluir uma compra, você concorda com as regras de uso, proteção de dados, pagamentos e fluxo operacional da Atlas Móveis."
-          title="Termos de uso"
-        />
-      </div>
-    </section>
-  );
+  return <LegalPage
+    title="Termos de uso"
+    intro="Estes termos explicam as regras para navegar e comprar na loja virtual Atlas Móveis. Ao criar uma conta ou concluir um pedido, você declara que leu estas condições, a Política de Privacidade, a Política de Entrega e a Política de Trocas e Devoluções. Os direitos previstos em lei permanecem válidos."
+    references={[{ label: "Código de Defesa do Consumidor (Lei nº 8.078/1990)", href: "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm" }, { label: "Decreto nº 7.962/2013 sobre comércio eletrônico", href: "https://planalto.gov.br/ccivil_03/_ato2011-2014/2013/decreto/d7962.htm" }]}
+    sections={[
+      { title: "Informações e uso do site", paragraphs: ["Use o site de forma lícita, sem tentar acessar áreas restritas, interferir no funcionamento, contornar controles de segurança, inserir código malicioso ou utilizar dados de terceiros sem autorização. As informações de produtos, materiais, dimensões, cores, valores e disponibilidade são apresentadas nas respectivas páginas; diferenças de tonalidade podem ocorrer conforme tela, iluminação e acabamento.", "Imagens são ilustrativas quanto ao ambiente e à composição. Considere a descrição, medidas e itens incluídos no anúncio antes de comprar. Se notar informação divergente ou precisar de esclarecimento, contate a equipe antes de concluir o pedido."] },
+      { title: "Conta e dados do comprador", paragraphs: ["Para comprar, podemos solicitar nome, e-mail, telefone, CPF/CNPJ e endereço completo. Mantenha os dados corretos e atualizados: eles são usados para validar o pedido, processar o pagamento, entregar o produto e atender obrigações fiscais. Você é responsável por manter a senha em sigilo e avisar a equipe se suspeitar de acesso indevido.", "A conta é pessoal. Não compartilhe credenciais nem tente realizar compras ou alterações em nome de outra pessoa sem autorização. O tratamento dos dados está descrito na Política de Privacidade."] },
+      { title: "Produtos, preço e disponibilidade", paragraphs: ["Os produtos podem ser fabricados sob encomenda. Estoque, prazo informado e disponibilidade podem mudar enquanto o pedido não estiver confirmado. A inclusão no carrinho não reserva produto nem fixa preço.", "O preço e as condições válidos são os apresentados no resumo antes da finalização. O servidor consulta o catálogo e recalcula preço, estoque, desconto e frete no momento da criação do pedido; uma alteração feita no navegador não muda o preço devido. Se houver erro evidente ou divergência, o pedido poderá ser suspenso para correção e contato com o comprador, sem prejuízo dos direitos previstos no Código de Defesa do Consumidor."] },
+      { title: "Pedido, pagamento e confirmação", paragraphs: ["Ao enviar o checkout, você solicita a compra dos itens e confirma os dados informados. O pedido é registrado e encaminhado ao Mercado Pago para pagamento. A aprovação é confirmada pelo fluxo do provedor; iniciar o checkout ou receber um número de pedido não significa que o pagamento foi aprovado nem que a produção ou expedição já começou.", "O checkout atualmente oferece Pix, com desconto de 5% calculado sobre os produtos, ou cartão pelo Mercado Pago. A disponibilidade de parcelas, bandeiras, limites e aprovação depende do provedor e será exibida no ambiente de pagamento. Não envie dados de cartão em campos de observação nem por canais de atendimento.", "Se o pagamento for recusado, permanecer pendente ou expirar, consulte a página de status ou fale com a equipe antes de tentar novamente. Não faça um segundo pagamento sem verificar o primeiro para evitar duplicidade."] },
+      { title: "Frete, produção e entrega", paragraphs: ["O frete é cotado pelo CEP informado com base nos produtos, dimensões, peso e serviços disponíveis. A loja oferece frete grátis para endereços nos estados do Paraná, Santa Catarina e Rio Grande do Sul; o custo da modalidade elegível é absorvido pela loja, embora a cotação logística possa ser exibida para comparação. Em Curitiba/PR pode haver entrega própria.", "A estimativa total apresentada separa produção e transporte: a configuração atual considera 5 dias corridos para produção e soma o prazo informado pela transportadora em dias úteis. Se a transportadora não fornecer prazo utilizável, o sistema usa 15 dias como estimativa de transporte. Esses prazos são estimativas, não uma promessa de entrega em data certa; consulte a Política de Entrega para os detalhes e exceções."] },
+      { title: "Cancelamento, arrependimento e defeitos", paragraphs: ["Compras realizadas fora do estabelecimento estão sujeitas ao direito de arrependimento previsto no art. 49 do CDC, inclusive para produto sob encomenda, observadas as condições legais. Defeitos, divergências em relação à oferta, cancelamentos e logística reversa são tratados conforme a Política de Trocas e Devoluções e a legislação aplicável. Nada nestes termos reduz direitos obrigatórios do consumidor."] },
+      { title: "Atendimento e solução de problemas", paragraphs: ["Para dúvidas sobre produto, cobrança, entrega ou pedido, informe o número do pedido e o e-mail usado na compra pelo WhatsApp comercial ou pelo e-mail contato@atlasmoveis.com.br. Não envie senha, código de autenticação ou dados completos de cartão. A equipe usará os canais fornecidos para acompanhar o atendimento."] },
+      { title: "Propriedade intelectual e mudanças", paragraphs: ["Textos, identidade visual, fotografias e demais conteúdos do site pertencem à Atlas Móveis ou são utilizados com autorização. Não os reproduza comercialmente sem consentimento. Podemos atualizar estes termos para refletir alterações operacionais ou legais; a versão vigente e sua data ficam nesta página. A legislação brasileira rege a relação, preservadas as regras de competência aplicáveis às relações de consumo."] }
+    ]}
+  />;
 }

@@ -1,16 +1,20 @@
-import { Breadcrumb } from "@/components/layout/breadcrumb";
-import { SectionHeading } from "@/components/ui/section-heading";
+import type { Metadata } from "next";
+
+import { LegalPage } from "@/components/legal/legal-page";
+
+export const metadata: Metadata = { title: "Política de entrega", description: "Entenda a cotação do frete, prazos de produção e transporte, frete grátis regional e recebimento dos pedidos Atlas Móveis." };
 
 export default function ShippingPolicyPage() {
-  return (
-    <section className="section-space">
-      <div className="container-shell space-y-8">
-        <Breadcrumb items={[{ href: "/", label: "Início" }, { label: "Política de entrega" }]} />
-        <SectionHeading
-          description="Os prazos variam conforme produto, região e agenda de produção. Antes do envio, a Atlas Móveis confirma a liberação do pedido e o melhor parceiro logístico."
-          title="Política de entrega"
-        />
-      </div>
-    </section>
-  );
+  return <LegalPage
+    title="Política de entrega"
+    intro="Explicamos abaixo como o frete é cotado, quando ele é gratuito e como interpretar os prazos exibidos no checkout. O CEP e os itens do pedido determinam os serviços disponíveis; confira endereço, modalidade e prazo antes de pagar."
+    sections={[
+      { title: "Cotação do frete", paragraphs: ["A cotação é solicitada ao Melhor Envio usando o CEP de destino e as dimensões, o peso e o valor segurado dos produtos. O sistema apresenta serviços e preços disponíveis para aquela combinação no momento da consulta. Alterar o CEP, o conteúdo do carrinho ou a modalidade pode alterar o resultado.", "O preço de transporte pode mudar até a confirmação do pedido, por atualização da transportadora, alteração dos dados do volume ou indisponibilidade do serviço. O valor final de frete é o mostrado no resumo confirmado do checkout. Se não houver cotação válida, não conclua a compra com um valor presumido: tente novamente ou fale com a equipe."] },
+      { title: "Frete grátis no Sul", paragraphs: ["Para destinos nos estados do Paraná (PR), Santa Catarina (SC) e Rio Grande do Sul (RS), o frete é gratuito nas opções elegíveis. O sistema pode mostrar mais de uma transportadora ou modalidade para comparação, mas o valor cobrado ao cliente nessas opções elegíveis é R$ 0,00. A gratuidade é determinada pela UF associada ao endereço informado e validada no servidor.", "Em Curitiba/PR, o checkout pode oferecer entrega própria da Atlas Móveis sem cobrança. A disponibilidade depende do endereço e da modalidade exibida para o pedido. Para outros destinos, o cliente paga o valor da opção de transporte selecionada."] },
+      { title: "Prazo de produção e prazo de transporte", paragraphs: ["O prazo total exibido é composto por etapas distintas. A configuração atual soma 5 dias corridos estimados para produção aos dias úteis indicados pelo serviço de transporte. Assim, o transporte começa a contar separadamente da produção; fins de semana e feriados podem afetar os dias úteis da transportadora.", "Quando a transportadora não retorna um prazo utilizável, o checkout usa 15 dias como estimativa substituta para o transporte e informa essa condição. Isso não é um prazo máximo garantido: atrasos de coleta, rota, clima, restrições locais ou outros eventos logísticos podem alterar a previsão. O prazo específico mostrado no checkout do seu CEP é a referência mais atual disponível antes da compra."] },
+      { title: "Endereço e recebimento", paragraphs: ["Informe CEP, logradouro, número, bairro, cidade, UF e complemento com atenção. O comprador deve garantir que haja alguém autorizado para receber no local e que o endereço permita acesso e descarga nas condições da transportadora. Móveis podem exigir espaço adequado para passagem; a cotação não inclui montagem nem içamento, salvo indicação expressa no anúncio ou contratação separada.", "Se identificar erro no endereço, avise a equipe imediatamente e antes da expedição. Depois que o pacote estiver com a transportadora, alterações, reentregas ou devoluções podem depender das regras e cobranças do serviço logístico."] },
+      { title: "Acompanhamento, tentativas e ocorrências", paragraphs: ["Quando houver código ou atualização de rastreio, ele será disponibilizado pelos canais de contato associados ao pedido. O rastreio pode levar algum tempo para refletir a primeira movimentação após a postagem.", "Se o pedido atrasar, chegar com embalagem avariada, faltar volume ou houver tentativa de entrega sem sucesso, registre fotos quando possível e contate a Atlas Móveis informando o número do pedido. Não descarte a embalagem antes de registrar danos. A equipe verificará o caso com o parceiro logístico e orientará os próximos passos."] },
+      { title: "Separação, envio e suporte", paragraphs: ["A preparação para produção e expedição depende da confirmação do pagamento e da validação do pedido. Uma previsão exibida antes da compra não substitui a confirmação do pedido. Em caso de dúvida sobre cobertura, prazo ou frete para seu CEP, fale com a equipe antes de concluir o pagamento."] }
+    ]}
+  />;
 }
